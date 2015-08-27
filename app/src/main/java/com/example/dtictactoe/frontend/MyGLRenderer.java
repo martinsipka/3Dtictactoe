@@ -1,4 +1,4 @@
-package com.example.dtictactoe;
+package com.example.dtictactoe.frontend;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -9,29 +9,41 @@ import android.opengl.GLU;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dtictactoe.AI.ScoreCheck;
+
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
+    public static final int STATE_CUBE = 0;
+    public static final int STATE_MAKING_CUBE = -1;
+    public static final int STATE_DESTROYING_CUBE = 1;
+    public static final int STATE_FLOORS = 3;
+    public static final int STATE_ZOOMING_IN = 4;
+    public static final int STATE_ZOOMED_IN = 5;
+    public static final int STATE_ZOOMING_OUT = 6;
+
+    public static final int TURN_RED = 1;
+    public static final int TURN_BLUE = 5;
+
+    private static final float animSpeed = 0.02f;
+
     Context context;
-    Floor floor;
-    LineFloor lf;
+    LineFloor lineFloor;
     private boolean rotate = true;
 
+    private int[][][] history = new int[4][4][4];
     private int[][][] a = new int[4][4][4];
 
     private static final String TAG = "RENDERTHREAD TAG";
-    private static final float animSpeed = 0.02f;
+
     // Rotational angle and speed (NEW)
     float angleX = 0.0f;
     float speedX = 0.0f;
     float angleY = 0.0f;
     float speedY = 0.0f;
-    float p = 0;
     float[][] floorCords = new float[4][3];
     int turn = 1;
     boolean dismem = true;
-    int state = 0;
-    private int cWidth;
-    private int cHeight;
+    int state;
     int zoomX;
     int zoomY;
     float cPosX;
@@ -39,16 +51,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float cPosZ;
     ScoreCheck sc;
 
-    boolean lightingEnabled = false;   // Is lighting on? (NEW)
-    private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1.0f};
-    private float[] lightDiffuse = {1.0f, 1.0f, 1.0f, 1.0f};
-    private float[] lightPosition = {0.0f, 0.0f, 2.0f, 1.0f};
-
     public MyGLRenderer(Context context) {
         // Set up the data-array buffers for these shapes ( NEW )
         this.context = context;
-        lf = new LineFloor(a);
-        sc = new ScoreCheck();
+        lineFloor = new LineFloor(a);
+        sc = new ScoreCheck(a);
     }
 
     @Override
@@ -60,50 +67,27 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         gl.glRotatef(angleX, 0.0f, 1.0f, 0.0f); // Rotate (NEW)
         gl.glRotatef(angleY, 1.0f, 0.0f, 0.0f); // Rotate (NEW)
 
-        if (false) {
-
-            gl.glEnable(GL10.GL_BLEND);
-            gl.glEnable(GL10.GL_DEPTH_TEST);
-            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-            //gl.glBlendFunc(GL10.GL_ZERO, GL10.GL_SRC_COLOR);
-
-            p = p + 0.05f;
-            float x = (float) ((float) 0.1f * Math.sin(p)) + 0.1f;
-
-
-            // draw single floors not together
-            gl.glTranslatef(0.0f, 0.0f + x, 0.0f);
-            floor.draw(gl);
-            gl.glTranslatef(0.0f, 0.5f + x, 0.0f);
-            floor.draw(gl);
-            gl.glTranslatef(0.0f, -1.0f - 2 * x, 0.0f);
-            floor.draw(gl);
-            gl.glTranslatef(0.0f, -0.5f - x, 0.0f);
-            floor.draw(gl);
-        } else {
-
-            if (state == -1) {
-                makeCubeAnim();
-            } else if (state == 1) {
-                dismemberCubeAnim();
-            } else if (state ==4) {
-                zoomInAnim();
-            } else if(state == 6){
-                zoomOutAnim();
-            }
-            //gl.glDisable(GL10.GL_CULL_FACE);
-            gl.glEnable(GL10.GL_LINE_SMOOTH);
-
-
-            for (int k = 0; k < 4; k++) {
-                gl.glPushMatrix();
-                gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
-
-                lf.drawFloor(gl, k);
-                gl.glPopMatrix();
-            }
-
+        if (state == STATE_MAKING_CUBE) {
+            makeCubeAnim();
+        } else if (state == STATE_DESTROYING_CUBE) {
+            dismemberCubeAnim();
+        } else if (state == STATE_ZOOMING_IN) {
+            zoomInAnim();
+        } else if (state == STATE_ZOOMING_OUT) {
+            zoomOutAnim();
         }
+
+        gl.glEnable(GL10.GL_LINE_SMOOTH);
+
+
+        for (int k = 0; k < 4; k++) {
+            gl.glPushMatrix();
+            gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
+
+            lineFloor.drawFloor(gl, k);
+            gl.glPopMatrix();
+        }
+
         // Update the rotational angle after each refresh.
         angleX += speedX;
         angleY += speedY;
@@ -113,8 +97,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         // TODO Auto-generated method stub
 
-        cWidth = width;
-        cHeight = height;
+
         if (height == 0)
             height = 1; // To prevent divide by zero
         float aspect = (float) width / height;
@@ -148,15 +131,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // view
         gl.glShadeModel(GL10.GL_SMOOTH); // Enable smooth shading of color
         gl.glDisable(GL10.GL_DITHER); // Disable dithering for better
-      /*  gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, lightAmbient, 0);
-        //gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_DIFFUSE, lightDiffuse, 0);
-        gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_POSITION, lightPosition, 0);
-        gl.glEnable(GL10.GL_LIGHT1);   // Enable Light 1 (NEW)
-        gl.glEnable(GL10.GL_LIGHT0);  							// performance
-
-		// Setup Texture, each time the surface is created (NEW)
-		// cube.loadTexture(gl); // Load image into Texture (NEW)
-		//gl.glEnable(GL10.GL_TEXTURE_2D); // Enable texture (NEW)*/
 
         for (int i = 0; i < 4; i++) {
             floorCords[i][0] = 0.0f;
@@ -184,7 +158,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                         floorCords[j][1] = 0.0f;
                         floorCords[j][2] = -0.75f + 0.5f * j;
                     }
-                    state = 0;
+                    state = STATE_CUBE;
                     rotate = true;
                 }
             }
@@ -205,9 +179,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private void dismemberCubeAnim() {
         int sign = 1;
-        if (rotate){
+        if (rotate) {
             rotateAnimation();
-        } if (dismem && !rotate) {
+        }
+        if (dismem && !rotate) {
             for (int i = 0; i < 4; i++) {
                 if (i % 2 == 1)
                     sign = -1 * sign;
@@ -223,13 +198,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
                 }
             }
-        } else if(!rotate){
+        } else if (!rotate) {
 
             for (int j = 0; j < 4; j++) {
                 floorCords[j][2] -= (j + 3.0f) * animSpeed;
                 if (floorCords[j][2] < -3.0f) {
 
-                    state = 3;
+                    state = STATE_FLOORS;
 
                 }
             }
@@ -240,81 +215,89 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         cPosX += zoomX * animSpeed;
         cPosY += zoomY * animSpeed;
         cPosZ += animSpeed;
-        if (cPosX*zoomX > 1.0f)
-            state = 5;
+        if (cPosX * zoomX > 1.0f)
+            state = STATE_ZOOMED_IN;
     }
 
     private void zoomOutAnim() {
         cPosX -= zoomX * animSpeed;
-        cPosY -= zoomY *animSpeed;
+        cPosY -= zoomY * animSpeed;
         cPosZ -= animSpeed;
         if (cPosX * zoomX < 0.0f)
-            state = 3;
+            state = STATE_FLOORS;
     }
 
-    private void rotateAnimation(){
+    private void rotateAnimation() {
         int sgnX = 0, sgnY = 0;
-        if(angleX > 180.0f){
-            sgnX  = 1;
-        }else if(angleX < 180.0f){
+        if (angleX > 180.0f) {
+            sgnX = 1;
+        } else if (angleX < 180.0f) {
             sgnX = -1;
         }
-        if(angleY > 180.0f){
+        if (angleY > 180.0f) {
             sgnY = 1;
-        }else if(angleY < 180.0f){
+        } else if (angleY < 180.0f) {
             sgnY = -1;
         }
         angleX += sgnX * 1.0f;
         angleY += sgnY * 1.0f;
-        if(angleX > 360.0f || angleX < 0.0f){
+        if (angleX > 360.0f || angleX < 0.0f) {
             angleX = 0.0f;
-            if(angleY == 0.0f)
+            if (angleY == 0.0f)
                 rotate = false;
         }
-        if(angleY > 360.0f || angleY < 0.0f){
+        if (angleY > 360.0f || angleY < 0.0f) {
             angleY = 0.0f;
-            if(angleX == 0.0f)
+            if (angleX == 0.0f)
                 rotate = false;
         }
     }
 
-    public void markSquare(int xCoor, int yCoor){
+    public void markSquare(int xCoor, int yCoor) {
 
+        Log.d(TAG, "cloning");
+        history = a.clone();
+        System.out.println(history == a);
         int zCoor;
-        if(zoomX == -1){
-            if(zoomY == 1)
+        if (zoomX == -1) {
+            if (zoomY == 1)
                 zCoor = 0;
             else
                 zCoor = 2;
-        }else{
-            if(zoomY == 1)
+        } else {
+            if (zoomY == 1)
                 zCoor = 1;
             else
                 zCoor = 3;
         }
-        if(a[xCoor][yCoor][zCoor] !=0 )
+        if (a[xCoor][yCoor][zCoor] != 0)
             return;
         a[xCoor][yCoor][zCoor] = turn;
-        lf.updateTable(a);
+        //lineFloor.updateTable(a);
         int checked = sc.check(xCoor, yCoor, zCoor, turn);
         Log.d(TAG, Integer.toString(checked));
-        if(checked == 1) {
+        if (checked == 1) {
             Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
-          //  endGame();
-        }else if(checked == 2){
+            //  endGame();
+        } else if (checked == 2) {
             Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
-           // endGame();
+            // endGame();
         }
-        if(turn == 1)
+        if (turn == 1)
             turn = 5;
         else
             turn = 1;
-        state = 6;
+        state = STATE_ZOOMING_OUT;
     }
 
-    private void endGame(){
-       state = -1;
-       lf.updateTable(new int[4][4][4]);
-       sc.resetBoard();
+    private void endGame() {
+        state = STATE_CUBE;
+        lineFloor.updateTable(new int[4][4][4]);
+    }
+
+    public void back() {
+        Log.d("backing", "up");
+        a = history.clone();
+        //lineFloor.updateTable(a);
     }
 }

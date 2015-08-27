@@ -1,10 +1,14 @@
-package com.example.dtictactoe;
+package com.example.dtictactoe.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.example.dtictactoe.R;
+import com.example.dtictactoe.frontend.GameView;
 
 public class MainActivity extends Activity {
 
@@ -28,9 +32,11 @@ public class MainActivity extends Activity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+				glView.back();
             }
         });
+		TextView textView = (TextView) findViewById(R.id.turn_text);
+		glView.setTurnText(textView);
 
 		
 		

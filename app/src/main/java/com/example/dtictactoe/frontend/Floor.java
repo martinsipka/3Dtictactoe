@@ -1,4 +1,4 @@
-package com.example.dtictactoe;
+package com.example.dtictactoe.frontend;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

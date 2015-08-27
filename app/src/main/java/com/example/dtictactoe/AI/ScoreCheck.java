@@ -1,12 +1,16 @@
-package com.example.dtictactoe;
+package com.example.dtictactoe.AI;
 
 public class ScoreCheck {
 
-    public static int[][][] a = new int[4][4][4];
+    public static int[][][] a;
 
     /*Check for winning. Players have their values: 1 or 5 so when 4 or 20 is sum of near fields
     * then we have a winner. Checking only neighbour fields with fastest possible loop.
     */
+
+    public ScoreCheck(int[][][] a){
+        this.a = a;
+    }
 
     public int check(int x, int y, int z, int value) {
         int result = 0;
@@ -52,10 +56,6 @@ public class ScoreCheck {
 
         return result;
 
-    }
-
-    public void resetBoard() {
-        a = new int[4][4][4];
     }
 
 }

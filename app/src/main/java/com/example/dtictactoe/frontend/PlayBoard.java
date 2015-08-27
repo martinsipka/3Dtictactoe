@@ -1,4 +1,4 @@
-package com.example.dtictactoe;
+package com.example.dtictactoe.frontend;
 
 import android.app.Activity;
 
