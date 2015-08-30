@@ -8,6 +8,11 @@ android {
         applicationId "com.example.dtictactoe"
         minSdkVersion 8
         targetSdkVersion 17
+
+        ndk {
+            moduleName "mcts"
+        }
+
     }
 
     buildTypes {
