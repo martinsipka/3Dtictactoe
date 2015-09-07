@@ -5,6 +5,8 @@ package com.example.dtictactoe.AI;
  */
 public class ArtificialIntelligence {
 
-    
+
+
+    public native int getPosition();//int[][][] board, int stm, int playouts);
 
 }
