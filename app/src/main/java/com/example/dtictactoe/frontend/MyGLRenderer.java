@@ -288,6 +288,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         else
             turn = 1;
         state = STATE_ZOOMING_OUT;
+
     }
 
     private void endGame() {

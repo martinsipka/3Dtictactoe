@@ -1,16 +1,9 @@
 #include <inttypes.h>
 #include <cstdlib>
-#include <time.h>
 #include <cmath>
 #include <jni.h>
 
 extern "C" {
-// jint
-
-
-#define WON 10
-#define DRAW 20
-#define NO_RESULT 30
 
 typedef uint64_t u64;
 typedef uint16_t u16;
@@ -109,6 +102,89 @@ const u64 win_masks[n_wins] = {15ull,
                                17293822569102704640ull,
                                1317302891005870080ull};
 
+const int masks_possible[64][7] = {{0,1,2,3,4,5,6},
+                                   {0,7,8,9},
+                                   {0,10,11,12},
+                                   {0,13,14,15,16,17,36},
+                                   {1,18,19,20},
+                                   {5,7,18,21},
+                                   {10,18,22,36},
+                                   {14,18,23,24},
+                                   {1,25,26,27},
+                                   {7,25,28,36},
+                                   {5,10,25,29},
+                                   {14,25,30,31},
+                                   {1,32,33,34,35,36,37},
+                                   {7,32,38,39},
+                                   {10,32,40,41},
+                                   {5,14,32,42,43,44,45},
+                                   {2,46,47,48},
+                                   {4,8,46,49},
+                                   {11,13,46,50},
+                                   {15,46,51,55},
+                                   {3,19,47,52},
+                                   {6,9,20,21,48,49,52},
+                                   {12,17,22,23,50,52,55},
+                                   {16,24,51,52},
+                                   {26,33,47,53},
+                                   {27,28,37,38,49,53,55},
+                                   {29,30,40,44,48,50,53},
+                                   {31,43,51,53},
+                                   {34,47,54,55},
+                                   {35,39,49,54},
+                                   {41,42,50,54},
+                                   {45,48,51,54},
+                                   {2,56,57,58},
+                                   {8,13,56,59},
+                                   {4,11,56,60},
+                                   {15,56,61,65},
+                                   {19,33,57,62},
+                                   {21,23,38,44,58,59,62},
+                                   {20,22,37,40,60,62,65},
+                                   {24,43,61,62},
+                                   {3,26,57,63},
+                                   {9,17,28,30,59,63,65},
+                                   {6,12,27,29,58,60,63},
+                                   {16,31,61,63},
+                                   {34,57,64,65},
+                                   {39,42,59,64},
+                                   {35,41,60,64},
+                                   {45,58,61,64},
+                                   {2,13,33,44,66,67,68},
+                                   {8,38,66,69},
+                                   {11,40,66,70},
+                                   {4,15,37,43,66,71,75},
+                                   {19,23,67,72},
+                                   {21,68,69,72},
+                                   {22,70,72,75},
+                                   {20,24,71,72},
+                                   {26,30,67,73},
+                                   {28,69,73,75},
+                                   {29,68,70,73},
+                                   {27,31,71,73},
+                                   {3,17,34,42,67,74,75},
+                                   {9,39,69,74},
+                                   {12,41,70,74},
+                                   {6,16,35,45,68,71,74}
+};
+
+const int n_masks[64] = {7, 4, 4, 7,
+                         4, 4, 4, 4,
+                         4, 4, 4, 4,
+                         7, 4, 4, 7,
+                         4, 4, 4, 4,
+                         4, 7, 7, 4,
+                         4, 7, 7, 4,
+                         4, 4, 4, 4,
+                         4, 4, 4, 4,
+                         4, 7, 7, 4,
+                         4, 7, 7, 4,
+                         4, 4, 4, 4,
+                         7, 4, 4, 7,
+                         4, 4, 4, 4,
+                         4, 4, 4, 4,
+                         7, 4, 4, 7};
+
 const u64 DeBruijn_64 = 0x3F79D71B4CB0A89ULL;
 
 const int BSF[64] = {0,
@@ -185,20 +261,21 @@ int lsb(u64 b) {
     return BSF[bsf_index(b)];
 }
 
-int is_won(bool clr) {
+bool is_won(bool clr, int pt)
+{
     u64 Us = clr ? white : black;
-    bool drawish = true;
-    for (int i = 0; i < n_wins; i++) {
-        if ((Us & win_masks[i]) == win_masks[i])
-            return WON;
-        if (drawish && !((white & win_masks[i]) && (black & win_masks[i])))
-            drawish = false;
+
+    for (int i=0; i<n_masks[pt]; i++)
+    {
+        if((Us & win_masks[masks_possible[pt][i]]) == win_masks[masks_possible[pt][i]])
+            return true;
     }
 
-    return drawish ? DRAW : NO_RESULT;
+    return false;
 }
 
-void make_move(int n) {
+void make_move(int n)
+{
     game[game_index] = n;
     both |= one << n;
     if (game_index & 1)
@@ -209,7 +286,8 @@ void make_move(int n) {
     onmove = !onmove;
 }
 
-void unmake_move() {
+void unmake_move()
+{
     game_index--;
     int n = game[game_index];
     both ^= one << n;
@@ -220,43 +298,57 @@ void unmake_move() {
 
     onmove = !onmove;
 }
-int randomize(int n) {
-    int won = 0;
+
+int randomize(int n, int pt)
+{
+    int won=0;
     int temp;
     bool us = !onmove;
     int previndex = game_index;
     bool rand_bad;
-    for (int i = 0; i < n; i++) {
-        int boolwon = is_won(!onmove);
-        while (boolwon == NO_RESULT) {
+    for (int i=0; i<n; i++)
+    {
+        int state = 0;
+        while (!is_won(!onmove, state ? temp : pt))
+        {
+            state = 1;
+            if (!(~both))
+            {
+                state = 10;
+                break;
+            }
             rand_bad = true;
-            while (rand_bad) {
+            while(rand_bad)
+            {
                 temp = rand() % 64;
-                if (!((one << temp) & both)) {
+                if(!((one << temp) & both))
+                {
                     make_move(temp);
                     rand_bad = false;
                 }
             }
-            boolwon = is_won(!onmove);
         }
-        if (boolwon == DRAW)
+        if(state == 10)
             won++;
-        else if ((!onmove) == us)
-            won += 2;
-        while (game_index > previndex) {
+        else if((!onmove) == us)
+            won+=2;
+        while (game_index>previndex)
+        {
             unmake_move();
         }
     }
     return won;
 }
 
-int _search(int board[4][4][4], int stm, int playouts) {
+int _search(int board[4][4][4], int stm, int playouts)
+{
     //srand(time(NULL));
     white = black = both = 0;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            for (int k = 0; k < 4; k++) {
-                u64 pt = one << (16 * i + 4 * j + k);
+    for (int i=0; i<4; i++)
+        for (int j=0; j<4; j++)
+            for (int k=0; k<4; k++)
+            {
+                u64 pt = one << (16*i+4*j+k);
                 if (board[i][j][k])
                     both |= pt;
 
@@ -273,45 +365,51 @@ int _search(int board[4][4][4], int stm, int playouts) {
     u64 _both = ~both;
     int index, best;
     n_root_moves = 0;
-    while (_both) {
-        index = lsb(_both & ~(_both - 1));
+    while(_both)
+    {
+        index = lsb(_both & ~(_both-1));
         root_moves[n_root_moves] = index;
         n_root_moves++;
-        _both &= (_both - 1);
+        _both &= (_both-1);
     }
 
-    for (int i = 0; i < 64; i++) {
+    for (int i=0; i<64; i++)
+    {
         root_moves_won[i] = root_moves_attempted[i] = 0;
     }
 
     int n = 0;
     float log_playouts = log(playouts);
 
-    while (n < playouts) {
+    while (n < playouts)
+    {
         int _index = 0;
         float best = -1000.0;
-        for (int i = 0; i < n_root_moves; i++) {
-            float curr = 0.5 * float(root_moves_won[i]) / float(root_moves_attempted[i] + 1) +
-                         1.414 * sqrt(log_playouts / float(root_moves_attempted[i] + 1));
-            if (curr > best) {
+        for (int i=0; i<n_root_moves; i++)
+        {
+            float curr = 0.5*float(root_moves_won[i])/float(root_moves_attempted[i]+1) + 1.414 * sqrt(log_playouts/float(root_moves_attempted[i]+1));
+            if (curr > best)
+            {
                 best = curr;
                 _index = i;
             }
         }
 
         make_move(root_moves[_index]);
-        root_moves_won[_index] += randomize(5);
+        root_moves_won[_index] += randomize(5, root_moves[_index]);
         root_moves_attempted[_index] += 5;
         unmake_move();
 
-        n += 5;
+        n+=5;
     }
 
     int _index = 0;
     float _best = -1000.0;
-    for (int i = 0; i < n_root_moves; i++) {
-        float curr = 0.5 * float(root_moves_won[i]) / float(root_moves_attempted[i]);
-        if (curr > _best) {
+    for (int i=0; i<n_root_moves; i++)
+    {
+        float curr = 0.5*float(root_moves_won[i])/float(root_moves_attempted[i]);
+        if (curr > _best)
+        {
             _best = curr;
             _index = i;
         }
@@ -320,13 +418,20 @@ int _search(int board[4][4][4], int stm, int playouts) {
 }
 
     jint Java_com_example_dtictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
-        jintArray field){
+        jobjectArray field){
 
-        int playboard[4][4][4];
-        
-        jint *body = env->GetIntArrayElements(field, 0);
-        _search(body, 5, 5);
-        return 0;//_search();
+        int board[4][4][4];
+        for( int i = 0; i < 4; i++){
+            jobjectArray twoDimens = (jobjectArray) env->GetObjectArrayElement(field, i);
+            for(int j = 0; j < 4; j++){
+                jintArray oneDimen = (jintArray)  env->GetObjectArrayElement(twoDimens, j);
+                jint *array = env->GetIntArrayElements(oneDimen, 0);
+                for(int k = 0; k < 4; k++) {
+                    board[i][j][k] = array[k];
+                }
+            }
+        }
+        return _search(board, 5, 50000);;//_search();
     }
 
 }

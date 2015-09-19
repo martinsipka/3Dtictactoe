@@ -2,6 +2,7 @@ package com.example.dtictactoe.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -23,9 +24,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ArtificialIntelligence ai = new ArtificialIntelligence();
-		System.out.println(ai.getPosition());//new int[4][4][4], 5, 1000));
-        /*this.setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
         glView = (GameView) findViewById(R.id.game_view);       // Allocate a GLSurfaceView
 	    Button cubeView = (Button) findViewById(R.id.cube_view);
         cubeView.setOnClickListener(new View.OnClickListener() {
@@ -44,7 +43,7 @@ public class MainActivity extends Activity {
         });
 		TextView textView = (TextView) findViewById(R.id.turn_text);
 		glView.setTurnText(textView);
-		*/
+
 
 	}
 
