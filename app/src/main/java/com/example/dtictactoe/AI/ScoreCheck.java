@@ -58,4 +58,8 @@ public class ScoreCheck {
 
     }
 
+    public void updateTable(int[][][] playBoard){
+        a = playBoard;
+    }
+
 }

@@ -9,6 +9,7 @@ import android.opengl.GLU;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.AI.ScoreCheck;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
@@ -31,7 +32,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private boolean rotate = true;
 
     private int[][][] history = new int[4][4][4];
-    private int[][][] a = new int[4][4][4];
+    private int[][][] playBoard = new int[4][4][4];
 
     private static final String TAG = "RENDERTHREAD TAG";
 
@@ -50,12 +51,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float cPosY;
     float cPosZ;
     ScoreCheck sc;
+    ArtificialIntelligence ai;
 
     public MyGLRenderer(Context context) {
-        // Set up the data-array buffers for these shapes ( NEW )
         this.context = context;
-        lineFloor = new LineFloor(a);
-        sc = new ScoreCheck(a);
+        lineFloor = new LineFloor(playBoard);
+        sc = new ScoreCheck(playBoard);
+        ai = new ArtificialIntelligence();
     }
 
     @Override
@@ -203,7 +205,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             for (int j = 0; j < 4; j++) {
                 floorCords[j][2] -= (j + 3.0f) * animSpeed;
                 if (floorCords[j][2] < -3.0f) {
-
+                    for(int p = 0; p < 4; p++){
+                        floorCords[p][2] = -3.0f;
+                    }
                     state = STATE_FLOORS;
 
                 }
@@ -215,16 +219,24 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         cPosX += zoomX * animSpeed;
         cPosY += zoomY * animSpeed;
         cPosZ += animSpeed;
-        if (cPosX * zoomX > 1.0f)
+        if (cPosX * zoomX > 1.0f) {
             state = STATE_ZOOMED_IN;
+            cPosX = 1.0f * zoomX;
+            cPosY = 1.0f * zoomY;
+            cPosZ = 1.0f;
+        }
     }
 
     private void zoomOutAnim() {
         cPosX -= zoomX * animSpeed;
         cPosY -= zoomY * animSpeed;
         cPosZ -= animSpeed;
-        if (cPosX * zoomX < 0.0f)
+        if (cPosX * zoomX < 0.0f){
             state = STATE_FLOORS;
+            cPosX = 0.0f;
+            cPosY = 0.0f;
+            cPosZ = 0.0f;
+        }
     }
 
     private void rotateAnimation() {
@@ -255,9 +267,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void markSquare(int xCoor, int yCoor) {
 
-        Log.d(TAG, "cloning");
-        history = a.clone();
-        System.out.println(history == a);
+        history = playBoard.clone();
+        System.out.println(history == playBoard);
         int zCoor;
         if (zoomX == -1) {
             if (zoomY == 1)
@@ -270,10 +281,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             else
                 zCoor = 3;
         }
-        if (a[xCoor][yCoor][zCoor] != 0)
+        Log.d("x y z: ", xCoor + " " + yCoor + " " + zCoor);
+        if (playBoard[xCoor][yCoor][zCoor] != 0)
             return;
-        a[xCoor][yCoor][zCoor] = turn;
-        //lineFloor.updateTable(a);
+        playBoard[xCoor][yCoor][zCoor] = turn;
+        //lineFloor.updateTable(playBoard);
         int checked = sc.check(xCoor, yCoor, zCoor, turn);
         Log.d(TAG, Integer.toString(checked));
         if (checked == 1) {
@@ -283,10 +295,27 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
             // endGame();
         }
-        if (turn == 1)
+        if (turn == 1) {
             turn = 5;
-        else
+            int newTurn  = ai.getPosition(playBoard);
+            xCoor = newTurn/16;
+            int left = newTurn % 16;
+            yCoor = left / 4;
+            zCoor = left % 4;
+            playBoard[xCoor][yCoor][zCoor] = turn;
+            //lineFloor.updateTable(playBoard);
+            checked = sc.check(xCoor, yCoor, zCoor, turn);
+            if (checked == 1) {
+                Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
+                //  endGame();
+            } else if (checked == 2) {
+                Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
+                // endGame();
+            }
             turn = 1;
+        } else {
+            turn = 1;
+        }
         state = STATE_ZOOMING_OUT;
 
     }
@@ -298,7 +327,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void back() {
         Log.d("backing", "up");
-        a = history.clone();
-        //lineFloor.updateTable(a);
+        playBoard = history.clone();
+        sc.updateTable(playBoard);
+        lineFloor.updateTable(playBoard);
     }
 }
