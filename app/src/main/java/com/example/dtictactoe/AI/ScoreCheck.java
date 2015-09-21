@@ -2,7 +2,7 @@ package com.example.dtictactoe.AI;
 
 public class ScoreCheck {
 
-    public static int[][][] a;
+    private int[][][] a;
 
     /*Check for winning. Players have their values: 1 or 5 so when 4 or 20 is sum of near fields
     * then we have a winner. Checking only neighbour fields with fastest possible loop.
@@ -12,9 +12,8 @@ public class ScoreCheck {
         this.a = a;
     }
 
-    public int check(int x, int y, int z, int value) {
+    public int check(int x, int y, int z) {
         int result = 0;
-        a[x][y][z] = value;
         // server possible win lines.
         int s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0;
 
@@ -28,9 +27,9 @@ public class ScoreCheck {
                 s4 = s4 + a[k][3 - k][z];
             }
             if (y == z) {
-                s4 = s4 + a[x][k][k];
+                s5 = s5 + a[x][k][k];
             } else if (y == 3 - z) {
-                s4 = s4 + a[x][k][3 - k];
+                s5 = s5 + a[x][k][3 - k];
             }
             if (x == z) {
                 s6 = s6 + a[k][y][k];

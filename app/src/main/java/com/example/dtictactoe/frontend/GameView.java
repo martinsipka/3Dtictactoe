@@ -193,6 +193,10 @@ public class GameView extends GLSurfaceView {
         renderer.back();
     }
 
+    public  void newGame() {
+        renderer.newGame();
+    }
+
     public void setTurnText(TextView textView) {
         turnText = textView;
     }

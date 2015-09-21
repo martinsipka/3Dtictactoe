@@ -64,10 +64,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        gl.glLoadIdentity(); // Reset the current model-view matrix
-        gl.glTranslatef(cPosX, cPosY, -6.0f + cPosZ * 4); // Translate into the screen (NEW)
-        gl.glRotatef(angleX, 0.0f, 1.0f, 0.0f); // Rotate (NEW)
-        gl.glRotatef(angleY, 1.0f, 0.0f, 0.0f); // Rotate (NEW)
+        gl.glLoadIdentity();
+        gl.glTranslatef(cPosX, cPosY, -6.0f + cPosZ * 4);
+        gl.glRotatef(angleX, 0.0f, 1.0f, 0.0f);
+        gl.glRotatef(angleY, 1.0f, 0.0f, 0.0f);
 
         if (state == STATE_MAKING_CUBE) {
             makeCubeAnim();
@@ -286,7 +286,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             return;
         playBoard[xCoor][yCoor][zCoor] = turn;
         //lineFloor.updateTable(playBoard);
-        int checked = sc.check(xCoor, yCoor, zCoor, turn);
+        int checked = sc.check(xCoor, yCoor, zCoor);
         Log.d(TAG, Integer.toString(checked));
         if (checked == 1) {
             Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
@@ -304,7 +304,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             zCoor = left % 4;
             playBoard[xCoor][yCoor][zCoor] = turn;
             //lineFloor.updateTable(playBoard);
-            checked = sc.check(xCoor, yCoor, zCoor, turn);
+            checked = sc.check(xCoor, yCoor, zCoor);
             if (checked == 1) {
                 Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
                 //  endGame();
@@ -328,6 +328,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void back() {
         Log.d("backing", "up");
         playBoard = history.clone();
+        sc.updateTable(playBoard);
+        lineFloor.updateTable(playBoard);
+    }
+
+    public void newGame(){
+        playBoard = new int[4][4][4];
         sc.updateTable(playBoard);
         lineFloor.updateTable(playBoard);
     }

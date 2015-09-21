@@ -10,6 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by Martin on 6. 2. 2015.
  */
 public class LineFloor {
+
     private FloatBuffer vertexBuffer;
     private int[][][] a;
 
