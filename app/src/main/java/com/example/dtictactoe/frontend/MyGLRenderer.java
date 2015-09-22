@@ -13,6 +13,7 @@ import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.AI.ScoreCheck;
 import com.example.dtictactoe.animations.Animation;
 
+import java.util.Deque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
@@ -55,7 +56,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float cPosZ;
     ScoreCheck sc;
     ArtificialIntelligence ai;
-    LinkedBlockingDeque<Animation> animations;
+    Deque<Animation> animations;
 
     public MyGLRenderer(Context context) {
         this.context = context;

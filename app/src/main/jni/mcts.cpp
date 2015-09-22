@@ -23,6 +23,8 @@ int n_root_moves;
 int root_moves_won[64];
 int root_moves_attempted[64];
 
+int n_occupied_masks[2][n_wins];
+
 bool onmove;
 
 const u64 win_masks[n_wins] = {15ull,
@@ -261,20 +263,7 @@ int lsb(u64 b) {
     return BSF[bsf_index(b)];
 }
 
-bool is_won(bool clr, int pt)
-{
-    u64 Us = clr ? white : black;
-
-    for (int i=0; i<n_masks[pt]; i++)
-    {
-        if((Us & win_masks[masks_possible[pt][i]]) == win_masks[masks_possible[pt][i]])
-            return true;
-    }
-
-    return false;
-}
-
-void make_move(int n)
+bool make_move(int n)
 {
     game[game_index] = n;
     both |= one << n;
@@ -284,6 +273,14 @@ void make_move(int n)
         white |= one << n;
     game_index++;
     onmove = !onmove;
+
+    for (int l=0; l<n_masks[n]; l++)
+    {
+        n_occupied_masks[(game_index-1) & 1][masks_possible[n][l]]++;
+        if (n_occupied_masks[(game_index-1) & 1][masks_possible[n][l]] == 4)
+            return true;
+    }
+    return false;
 }
 
 void unmake_move()
@@ -306,11 +303,54 @@ int randomize(int n, int pt)
     bool us = !onmove;
     int previndex = game_index;
     bool rand_bad;
+    bool killed;
+    bool killable;
+    bool needing_defense;
+    int sq_def;
+
+    int _copy_occupied_masks[2][n_wins];
+
+    for (int i=0; i<2; i++)
+    {
+        for(int j=0; j<n_wins; j++)
+            _copy_occupied_masks[i][j] = n_occupied_masks[i][j];
+    }
+
     for (int i=0; i<n; i++)
     {
         int state = 0;
-        while (!is_won(!onmove, state ? temp : pt))
+        killed = false;
+        while (!killed)
         {
+            killable = false;
+            for (int i=0; i<n_wins; i++)
+            {
+                if (n_occupied_masks[!onmove][i] == 3 && n_occupied_masks[onmove][i] == 0)
+                {
+                    killable = true;
+                    break;
+                }
+            }
+            if (killable)
+                break;
+
+            needing_defense = false;
+            for (int i=0; i<n_wins; i++)
+            {
+                if (n_occupied_masks[onmove][i] == 3 && n_occupied_masks[!onmove][i] == 0)
+                {
+                    needing_defense = true;
+                    sq_def = lsb(win_masks[i]&(~both));
+                    break;
+                }
+            }
+
+            if (needing_defense)
+            {
+                make_move(sq_def);
+                continue;
+            }
+
             state = 1;
             if (!(~both))
             {
@@ -323,19 +363,27 @@ int randomize(int n, int pt)
                 temp = rand() % 64;
                 if(!((one << temp) & both))
                 {
-                    make_move(temp);
+                    killed = make_move(temp);
                     rand_bad = false;
                 }
             }
         }
         if(state == 10)
             won++;
-        else if((!onmove) == us)
-            won+=2;
+        else if(onmove == us)
+            won += 2;
+
         while (game_index>previndex)
         {
             unmake_move();
         }
+
+        if (i!=(n-1))
+            for (int i=0; i<2; i++)
+            {
+                for(int j=0; j<n_wins; j++)
+                    n_occupied_masks[i][j] = _copy_occupied_masks[i][j];
+            }
     }
     return won;
 }
@@ -373,6 +421,41 @@ int _search(int board[4][4][4], int stm, int playouts)
         _both &= (_both-1);
     }
 
+    for (int i=0; i<2; i++)
+    {
+        for(int j=0; j<n_wins; j++)
+            n_occupied_masks[i][j] = 0;
+    }
+
+    for (int i=0; i<4; i++)
+        for (int j=0; j<4; j++)
+            for (int k=0; k<4; k++)
+            {
+                int pt = (16*i+4*j+k);
+                if (!board[i][j][k])
+                    continue;
+
+                if (board[i][j][k] == 1)
+                {
+                    for (int l=0; l<n_masks[pt]; l++)
+                        n_occupied_masks[0][masks_possible[pt][l]]++;
+                }
+
+                if (board[i][j][k] == 5)
+                {
+                    for (int l=0; l<n_masks[pt]; l++)
+                        n_occupied_masks[1][masks_possible[pt][l]]++;
+                }
+            }
+
+    int copy_occupied_masks[2][n_wins];
+
+    for (int i=0; i<2; i++)
+    {
+        for(int j=0; j<n_wins; j++)
+            copy_occupied_masks[i][j] = n_occupied_masks[i][j];
+    }
+
     for (int i=0; i<64; i++)
     {
         root_moves_won[i] = root_moves_attempted[i] = 0;
@@ -395,10 +478,20 @@ int _search(int board[4][4][4], int stm, int playouts)
             }
         }
 
-        make_move(root_moves[_index]);
-        root_moves_won[_index] += randomize(5, root_moves[_index]);
+        bool k = make_move(root_moves[_index]);
+        if (k)
+            root_moves_won[_index] += 2*5;
+        else
+            root_moves_won[_index] += randomize(5, root_moves[_index]);
+
         root_moves_attempted[_index] += 5;
         unmake_move();
+
+        for (int i=0; i<2; i++)
+        {
+            for(int j=0; j<n_wins; j++)
+                n_occupied_masks[i][j] = copy_occupied_masks[i][j];
+        }
 
         n+=5;
     }
@@ -413,9 +506,11 @@ int _search(int board[4][4][4], int stm, int playouts)
             _best = curr;
             _index = i;
         }
+        //cout << root_moves[i] << " " << root_moves_attempted[i] << " " << curr << endl;
     }
+    //cout << root_moves[_index] << " " << root_moves_won[_index];
     return root_moves[_index];
-}
+    }
 
     jint Java_com_example_dtictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
         jobjectArray field){
@@ -431,7 +526,7 @@ int _search(int board[4][4][4], int stm, int playouts)
                 }
             }
         }
-        return _search(board, 5, 50000);;//_search();
+        return _search(board, 5, 30000);;//_search();
     }
 
 }

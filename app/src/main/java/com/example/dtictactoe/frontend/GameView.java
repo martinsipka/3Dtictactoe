@@ -20,10 +20,10 @@ public class GameView extends GLSurfaceView {
     private float previousY;
     private float width;
     private float height;
-    private static final int bottomMargin = 344;
-    private static final int topMargin = 220;
-    private static final int leftMargin = 30;
-    private static final int rightMargin = 120;
+    private int bottomMargin = 344;
+    private int topMargin = 220;
+    private int leftMargin = 30;
+    private int rightMargin = 120;
     private TextView turnText;
     private int turn = 1;
 
@@ -41,7 +41,11 @@ public class GameView extends GLSurfaceView {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 width = getWidth();
+                leftMargin = (int) (width * 0.04f);
+                rightMargin = (int) (width * 0.17f);
                 height = getHeight();
+                topMargin = (int) (height * 0.2f);
+                bottomMargin = (int) (height * 0.3f);
                 Log.d(TAG, width + " " + height);
             }
 
