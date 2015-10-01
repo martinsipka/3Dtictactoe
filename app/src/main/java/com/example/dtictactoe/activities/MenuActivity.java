@@ -1,7 +1,9 @@
 package com.example.dtictactoe.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.example.dtictactoe.R;
 
@@ -16,15 +18,17 @@ public class MenuActivity extends Activity {
         setContentView(R.layout.main_menu);
     }
 
-    public void playVersus(){
-
+    public void playVersus(View v){
+        Intent intent = new Intent(getBaseContext(), VersusModeActivity.class);
+        startActivity(intent);
     }
 
-    public void playBot(){
-
+    public void playBot(View v){
+        Intent intent = new Intent(getBaseContext(), BotModeActivity.class);
+        startActivity(intent);
     }
 
-    public void quit(){
-
+    public void quit(View v){
+        finish();
     }
 }

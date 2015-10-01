@@ -6,16 +6,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.R;
+import com.example.dtictactoe.backend.Move;
 import com.example.dtictactoe.frontend.GameView;
 
 public class GameActivity extends Activity {
 
-	GameView glView;
-    int localState = 1;
+	private GameView glView;
+    private ProgressBar progressBar;
+    private int localState = 1;
 
     static {
         System.loadLibrary("mcts");
@@ -38,13 +41,20 @@ public class GameActivity extends Activity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-				glView.newGame();
+				glView.back();
+            }
+        });
+        Button newGame = (Button) findViewById(R.id.new_game_button);
+        newGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                glView.newGame();
             }
         });
 		TextView textView = (TextView) findViewById(R.id.turn_text);
 		glView.setTurnText(textView);
 
-
+        progressBar = (ProgressBar) findViewById(R.id.thinking_progress);
 	}
 
 	@Override
@@ -53,5 +63,37 @@ public class GameActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+    public void nextMove(){}
+
+    public void setGameActivity(GameActivity gameActivity){
+        glView.setGameActivity(gameActivity);
+    }
+
+    public int[][][] getPlayBoard(){
+        return glView.getPlayBoard();
+    }
+
+    public boolean markSquare(Move move){
+        return glView.markSquare(move);
+    }
+
+    public void setWaiting(){
+        displayWaiting();
+        glView.disableTouch();
+    }
+
+    public void setReady(){
+        hideWaiting();
+        glView.enableTouch();
+    }
+
+    public void displayWaiting(){
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    public void hideWaiting(){
+        progressBar.setVisibility(View.INVISIBLE);
+    }
 
 }

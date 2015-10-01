@@ -12,8 +12,11 @@ import android.widget.Toast;
 import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.AI.ScoreCheck;
 import com.example.dtictactoe.animations.Animation;
+import com.example.dtictactoe.backend.Move;
 
 import java.util.Deque;
+import java.util.EmptyStackException;
+import java.util.Stack;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
@@ -35,8 +38,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     LineFloor lineFloor;
     private boolean rotate = true;
 
-    private int[][][] history = new int[4][4][4];
     private int[][][] playBoard = new int[4][4][4];
+    private Stack<Move> history = new Stack<Move>();
 
     private static final String TAG = "RENDERTHREAD TAG";
 
@@ -55,14 +58,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float cPosY;
     float cPosZ;
     ScoreCheck sc;
-    ArtificialIntelligence ai;
+
     Deque<Animation> animations;
 
     public MyGLRenderer(Context context) {
         this.context = context;
         lineFloor = new LineFloor(playBoard);
         sc = new ScoreCheck(playBoard);
-        ai = new ArtificialIntelligence();
     }
 
     @Override
@@ -270,10 +272,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void markSquare(int xCoor, int yCoor) {
-
-        history = playBoard.clone();
-        System.out.println(history == playBoard);
+    public boolean markAsPlayer(int xCoor, int yCoor){
         int zCoor;
         if (zoomX == -1) {
             if (zoomY == 1)
@@ -286,9 +285,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             else
                 zCoor = 3;
         }
-        Log.d("x y z: ", xCoor + " " + yCoor + " " + zCoor);
+        return markSquare(xCoor, yCoor, zCoor);
+    }
+
+    public boolean markSquare(Move move){
+        return markSquare(move.getX(), move.getY(), move.getZ());
+    }
+
+    public boolean markSquare(int xCoor, int yCoor, int zCoor) {
+
         if (playBoard[xCoor][yCoor][zCoor] != 0)
-            return;
+            return false;
+
+        history.add(new Move(xCoor, yCoor, zCoor, turn));
+
+        Log.d("x y z: ", xCoor + " " + yCoor + " " + zCoor);
+
         playBoard[xCoor][yCoor][zCoor] = turn;
         //lineFloor.updateTable(playBoard);
         int checked = sc.check(xCoor, yCoor, zCoor);
@@ -302,27 +314,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
         if (turn == 1) {
             turn = 5;
-            int newTurn  = ai.getPosition(playBoard);
-            xCoor = newTurn/16;
-            int left = newTurn % 16;
-            yCoor = left / 4;
-            zCoor = left % 4;
-            playBoard[xCoor][yCoor][zCoor] = turn;
-            //lineFloor.updateTable(playBoard);
-            checked = sc.check(xCoor, yCoor, zCoor);
-            if (checked == 1) {
-                Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
-                //  endGame();
-            } else if (checked == 2) {
-                Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
-                // endGame();
-            }
-            turn = 1;
         } else {
             turn = 1;
         }
         state = STATE_ZOOMING_OUT;
 
+        return true;
     }
 
     private void endGame() {
@@ -332,14 +329,30 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void back() {
         Log.d("backing", "up");
-        playBoard = history.clone();
-        sc.updateTable(playBoard);
-        lineFloor.updateTable(playBoard);
+        try {
+            Move move = history.pop();
+            int x = move.getX();
+            int y = move.getY();
+            int z = move.getZ();
+            playBoard[x][y][z] = 0;
+            move = history.pop();
+            x = move.getX();
+            y = move.getY();
+            z = move.getZ();
+            playBoard[x][y][z] = 0;
+        } catch (EmptyStackException e){
+            e.printStackTrace();
+            Toast.makeText(context, "No more moves in history!", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void newGame(){
         playBoard = new int[4][4][4];
         sc.updateTable(playBoard);
         lineFloor.updateTable(playBoard);
+    }
+
+    public int[][][] getPlayBoard(){
+        return playBoard;
     }
 }

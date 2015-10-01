@@ -10,12 +10,16 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.widget.TextView;
 
+import com.example.dtictactoe.GameActivity;
+import com.example.dtictactoe.backend.Move;
+
 public class GameView extends GLSurfaceView {
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320.0f;
     public static final String TAG = "GAMEVIEW TAG";
 
-    MyGLRenderer renderer;
+    private GameActivity gameActivity;
+    private MyGLRenderer renderer;
     private float previousX;
     private float previousY;
     private float width;
@@ -26,6 +30,7 @@ public class GameView extends GLSurfaceView {
     private int rightMargin = 120;
     private TextView turnText;
     private int turn = 1;
+    private boolean enableTouch = true;
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -147,8 +152,12 @@ public class GameView extends GLSurfaceView {
                         } else {
                             yCoor = 3;
                         }
-                        switchTurn();
-                        renderer.markSquare(xCoor, yCoor);
+                        if(enableTouch) {
+                            if (renderer.markAsPlayer(xCoor, yCoor)) {
+                                switchTurn();
+                                gameActivity.nextMove();
+                            }
+                        }
                     }
                     break;
                     case MotionEvent.ACTION_MOVE:
@@ -205,6 +214,10 @@ public class GameView extends GLSurfaceView {
         turnText = textView;
     }
 
+    public void setGameActivity(GameActivity gameActivity){
+        this.gameActivity = gameActivity;
+    }
+
     private void switchTurn() {
         if (turn == MyGLRenderer.TURN_RED) {
             turnText.setText("Blue turn");
@@ -215,7 +228,31 @@ public class GameView extends GLSurfaceView {
             turnText.setTextColor(Color.RED);
             turn = MyGLRenderer.TURN_RED;
         }
+
     }
 
+    public int[][][] getPlayBoard(){
+        return renderer.getPlayBoard();
+    }
+
+    public boolean markSquare(Move move){
+        if(renderer.markSquare(move)){
+            switchTurn();
+            return true;
+        }
+        return false;
+
+    }
+
+    public void enableTouch(){
+        enableTouch = true;
+        System.out.println("enabling touch");
+    }
+
+    public void disableTouch(){
+        enableTouch = false;
+        System.out.println("diabling touch");
+
+    }
 
 }

@@ -2,14 +2,12 @@ package com.example.dtictactoe.activities;
 
 import android.os.Bundle;
 
-import com.example.dtictactoe.AI.AsyncAILoader;
 import com.example.dtictactoe.GameActivity;
-import com.example.dtictactoe.backend.Move;
 
 /**
- * Created by Martin on 21. 9. 2015.
+ * Created by Martin on 29. 9. 2015.
  */
-public class BotModeActivity extends GameActivity {
+public class OnlineModeActivity extends GameActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +16,8 @@ public class BotModeActivity extends GameActivity {
     }
 
     @Override
-    public void nextMove(){
-        setWaiting();
-        new AsyncAILoader(this).execute(getPlayBoard());
+    public void nextMove() {
+
     }
 
 }
