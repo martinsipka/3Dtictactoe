@@ -1,0 +1,2 @@
+C:\Users\Martin\AndroidStudioProjects\3dtictactoe\app\build\intermediates\classes\debug
+C:\Users\Martin\AndroidStudioProjects\3dtictactoe\app\build\intermediates\pre-dexed\debug\support-v4-18.0.0-41d5f79a905115db9dfb1d7be748a3079f29ec79.jar
