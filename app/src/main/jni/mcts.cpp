@@ -25,7 +25,78 @@ int root_moves_attempted[64];
 
 int n_occupied_masks[2][n_wins];
 
+int danger;
+bool is_dng;
+
 bool onmove;
+
+const u64 good_patterns[32] = {1632ull,
+                               106954752ull,
+                               7009386627072ull,
+                               459367161991790592ull,
+                               36873ull,
+                               2416508928ull,
+                               158368329105408ull,
+                               10378826816252018688ull,
+                               25770196992ull,
+                               412323151872ull,
+                               6597170429952ull,
+                               105554726879232ull,
+                               2533274790395913ull,
+                               40532396646334608ull,
+                               648518346341353728ull,
+                               10376293541461659648ull,
+                               1168248930304ull,
+                               2336497860608ull,
+                               4672995721216ull,
+                               9345991442432ull,
+                               1153202979583561729ull,
+                               2306405959167123458ull,
+                               4612811918334246916ull,
+                               9225623836668493832ull,
+                               6597076058112ull,
+                               10376293541461622793ull,
+                               2336533512192ull,
+                               1153202979583590408ull,
+                               412417523712ull,
+                               2533274790432768ull,
+                               4672960069632ull,
+                               9225623836668465153ull,
+};
+
+const u64 pattern_covers[32] = {65535ull,
+                                4294901760ull,
+                                281470681743360ull,
+                                18446462598732840960ull,
+                                65535ull,
+                                4294901760ull,
+                                281470681743360ull,
+                                18446462598732840960ull,
+                                4222189076152335ull,
+                                67555025218437360ull,
+                                1080880403494997760ull,
+                                17294086455919964160ull,
+                                4222189076152335ull,
+                                67555025218437360ull,
+                                1080880403494997760ull,
+                                17294086455919964160ull,
+                                1229782938247303441ull,
+                                2459565876494606882ull,
+                                4919131752989213764ull,
+                                9838263505978427528ull,
+                                1229782938247303441ull,
+                                2459565876494606882ull,
+                                4919131752989213764ull,
+                                9838263505978427528ull,
+                                17293839061792849935ull,
+                                17293839061792849935ull,
+                                1229801703818430600ull,
+                                1229801703818430600ull,
+                                4223155694530560ull,
+                                4223155694530560ull,
+                                9838188445411971345ull,
+                                9838188445411971345ull,
+};
 
 const u64 win_masks[n_wins] = {15ull,
                                4369ull,
@@ -263,6 +334,11 @@ int lsb(u64 b) {
     return BSF[bsf_index(b)];
 }
 
+inline bool exactly_one(u64 b)
+{
+    return b && !(b&(b-1));
+}
+
 bool make_move(int n)
 {
     game[game_index] = n;
@@ -274,11 +350,19 @@ bool make_move(int n)
     game_index++;
     onmove = !onmove;
 
+    is_dng = false;
+    int nd = 0;
+
     for (int l=0; l<n_masks[n]; l++)
     {
         n_occupied_masks[(game_index-1) & 1][masks_possible[n][l]]++;
-        if (n_occupied_masks[(game_index-1) & 1][masks_possible[n][l]] == 4)
-            return true;
+        if ((n_occupied_masks[(game_index-1) & 1][masks_possible[n][l]] == 3) && (n_occupied_masks[(game_index) & 1][masks_possible[n][l]] == 0))
+        {
+            if (is_dng)
+                return true;
+            is_dng = true;
+            danger = lsb(win_masks[masks_possible[n][l]]&(~both));
+        }
     }
     return false;
 }
@@ -304,9 +388,6 @@ int randomize(int n, int pt)
     int previndex = game_index;
     bool rand_bad;
     bool killed;
-    bool killable;
-    bool needing_defense;
-    int sq_def;
 
     int _copy_occupied_masks[2][n_wins];
 
@@ -322,32 +403,9 @@ int randomize(int n, int pt)
         killed = false;
         while (!killed)
         {
-            killable = false;
-            for (int i=0; i<n_wins; i++)
+            if (is_dng)
             {
-                if (n_occupied_masks[!onmove][i] == 3 && n_occupied_masks[onmove][i] == 0)
-                {
-                    killable = true;
-                    break;
-                }
-            }
-            if (killable)
-                break;
-
-            needing_defense = false;
-            for (int i=0; i<n_wins; i++)
-            {
-                if (n_occupied_masks[onmove][i] == 3 && n_occupied_masks[!onmove][i] == 0)
-                {
-                    needing_defense = true;
-                    sq_def = lsb(win_masks[i]&(~both));
-                    break;
-                }
-            }
-
-            if (needing_defense)
-            {
-                make_move(sq_def);
+                killed = make_move(danger);
                 continue;
             }
 
@@ -357,11 +415,14 @@ int randomize(int n, int pt)
                 state = 10;
                 break;
             }
+
             rand_bad = true;
             while(rand_bad)
             {
                 temp = rand() % 64;
-                if(!((one << temp) & both))
+                u64 m = one << temp;
+
+                if(!(m & both))
                 {
                     killed = make_move(temp);
                     rand_bad = false;
@@ -370,7 +431,7 @@ int randomize(int n, int pt)
         }
         if(state == 10)
             won++;
-        else if(onmove == us)
+        else if(!onmove == us)
             won += 2;
 
         while (game_index>previndex)
@@ -388,7 +449,7 @@ int randomize(int n, int pt)
     return won;
 }
 
-int _search(int board[4][4][4], int stm, int playouts)
+int _search(int board[4][4][4], int stm, int playouts, float _bonus)
 {
     //srand(time(NULL));
     white = black = both = 0;
@@ -432,21 +493,38 @@ int _search(int board[4][4][4], int stm, int playouts)
             for (int k=0; k<4; k++)
             {
                 int pt = (16*i+4*j+k);
-                if (!board[i][j][k])
+                u64 pt64 = one << pt;
+                if (!(pt64 & both))
                     continue;
 
-                if (board[i][j][k] == 1)
+                if (pt64 & white)
                 {
                     for (int l=0; l<n_masks[pt]; l++)
                         n_occupied_masks[0][masks_possible[pt][l]]++;
                 }
 
-                if (board[i][j][k] == 5)
+                if (pt64 & black)
                 {
                     for (int l=0; l<n_masks[pt]; l++)
                         n_occupied_masks[1][masks_possible[pt][l]]++;
                 }
             }
+
+    for(int j=0; j<n_wins; j++)
+    {
+        if ((n_occupied_masks[!onmove][j] == 3) && (n_occupied_masks[onmove][j] == 0))
+        {
+            return lsb(win_masks[j]&(~both));
+        }
+    }
+
+    for(int j=0; j<n_wins; j++)
+    {
+        if ((n_occupied_masks[onmove][j] == 3) && (n_occupied_masks[!onmove][j] == 0))
+        {
+            return lsb(win_masks[j]&(~both));
+        }
+    }
 
     int copy_occupied_masks[2][n_wins];
 
@@ -461,6 +539,18 @@ int _search(int board[4][4][4], int stm, int playouts)
         root_moves_won[i] = root_moves_attempted[i] = 0;
     }
 
+    bool bonus[64];
+    for (int i=0; i<64; i++)
+        bonus[i] = false;
+
+    for (int i=0; i<32; i++)
+    {
+        if ((good_patterns[i] & ~both) && ((exactly_one(good_patterns[i] & ~white) && !((pattern_covers[i]^good_patterns[i]) & black)) || (exactly_one(good_patterns[i] & ~black)) && !((pattern_covers[i]^good_patterns[i]) & white)))
+            bonus[lsb(good_patterns[i] & ~both)] = true;
+        //cout << lsb(good_patterns[i] & ~both) << endl;
+
+    }
+
     int n = 0;
     float log_playouts = log(playouts);
 
@@ -471,6 +561,8 @@ int _search(int board[4][4][4], int stm, int playouts)
         for (int i=0; i<n_root_moves; i++)
         {
             float curr = 0.5*float(root_moves_won[i])/float(root_moves_attempted[i]+1) + 1.414 * sqrt(log_playouts/float(root_moves_attempted[i]+1));
+            if (bonus[root_moves[i]])
+                curr += _bonus;
             if (curr > best)
             {
                 best = curr;
@@ -501,18 +593,22 @@ int _search(int board[4][4][4], int stm, int playouts)
     for (int i=0; i<n_root_moves; i++)
     {
         float curr = 0.5*float(root_moves_won[i])/float(root_moves_attempted[i]);
+        if (bonus[root_moves[i]])
+            curr += _bonus;
         if (curr > _best)
         {
             _best = curr;
             _index = i;
         }
-        //cout << root_moves[i] << " " << root_moves_attempted[i] << " " << curr << endl;
+        //cout << root_moves[i] << " " << root_moves_attempted[i] << " " << curr << " " << bonus[root_moves[i]] << endl;
     }
     //cout << root_moves[_index] << " " << root_moves_won[_index];
     return root_moves[_index];
-    }
+}
 
-    jint Java_com_example_dtictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
+
+
+jint Java_com_example_dtictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
         jobjectArray field){
 
         int board[4][4][4];
@@ -526,7 +622,7 @@ int _search(int board[4][4][4], int stm, int playouts)
                 }
             }
         }
-        return _search(board, 5, 30000);;//_search();
+        return _search(board, 5, 30000, 0.05f);;//_search();
     }
 
 }

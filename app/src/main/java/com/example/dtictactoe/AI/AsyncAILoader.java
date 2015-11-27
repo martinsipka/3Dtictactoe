@@ -32,7 +32,7 @@ public class AsyncAILoader extends AsyncTask<int[][][], Object, Integer> {
         int yCoor = left / 4;
         int zCoor = left % 4;
         if(!gameActivity.markSquare(new Move(xCoor, yCoor, zCoor, -1)))
-            throw new AIFuckedUpException();
+            throw new AIException();
         gameActivity.setReady();
     }
 
