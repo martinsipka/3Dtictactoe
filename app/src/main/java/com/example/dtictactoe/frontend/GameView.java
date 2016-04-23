@@ -78,7 +78,7 @@ public class GameView extends GLSurfaceView {
         float currentX = evt.getX();
         float currentY = evt.getY();
 
-        Log.d(TAG, "current touch: " + currentX + " , " + currentY);
+       // Log.d(TAG, "current touch: " + currentX + " , " + currentY);
 
         switch (evt.getAction()) {
 
@@ -118,81 +118,87 @@ public class GameView extends GLSurfaceView {
                         top = topMargin;
                         bottom = bottomMargin;
                     }
-                        Log.d(TAG, " " + currentX);
-                        if (currentX < left || currentX > width - right) {
-                            renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
-                            return true;
-                        }
-                        if (currentY < top || currentY > height - bottom) {
-                            renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
-                            return true;
-                        }
+                    Log.d(TAG, " " + currentX);
+                    if (currentX < left || currentX > width - right) {
+                        renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
+                        return true;
+                    }
+                    if (currentY < top || currentY > height - bottom) {
+                        renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
+                        return true;
+                    }
 
-                        float relativeX = currentX - left;
-                        float relativeY = currentY - top;
+                    float relativeX = currentX - left;
+                    float relativeY = currentY - top;
 
-                        float relativeWidth = width - left - right;
-                        float relativeHeight = height - top - bottom;
+                    float relativeWidth = width - left - right;
+                    float relativeHeight = height - top - bottom;
 
-                        if (relativeX < relativeWidth / 4) {
-                            xCoor = 0;
-                        } else if (relativeX < relativeWidth / 2) {
-                            xCoor = 1;
-                        } else if (relativeX < relativeWidth * 2 / 3) {
-                            xCoor = 2;
-                        } else {
-                            xCoor = 3;
-                        }
-                        if (relativeY < relativeHeight / 4) {
-                            yCoor = 0;
-                        } else if (relativeY < relativeHeight / 2) {
-                            yCoor = 1;
-                        } else if (relativeY < relativeHeight * 2 / 3) {
-                            yCoor = 2;
-                        } else {
-                            yCoor = 3;
-                        }
-                        if(enableTouch) {
-                            if (renderer.markAsPlayer(xCoor, yCoor)) {
-                                switchTurn();
-                                gameActivity.nextMove();
-                            }
+                    if (relativeX < relativeWidth / 4) {
+                        xCoor = 0;
+                    } else if (relativeX < relativeWidth / 2) {
+                        xCoor = 1;
+                    } else if (relativeX < relativeWidth * 2 / 3) {
+                        xCoor = 2;
+                    } else {
+                        xCoor = 3;
+                    }
+                    if (relativeY < relativeHeight / 4) {
+                        yCoor = 0;
+                    } else if (relativeY < relativeHeight / 2) {
+                        yCoor = 1;
+                    } else if (relativeY < relativeHeight * 2 / 3) {
+                        yCoor = 2;
+                    } else {
+                        yCoor = 3;
+                    }
+                    if (enableTouch) {
+                        if (renderer.markAsPlayer(xCoor, yCoor)) {
+                            switchTurn();
+                            gameActivity.nextMove();
                         }
                     }
-                    break;
-                    case MotionEvent.ACTION_MOVE:
-                        float deltaX, deltaY;
-
-                        // Modify rotational angles according to movement
-                        if (renderer.state == MyGLRenderer.STATE_CUBE) {
-
-                            deltaX = currentX - previousX;
-                            deltaY = currentY - previousY;
-                            if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR > 360.0f) {
-                                renderer.angleY += deltaY * TOUCH_SCALE_FACTOR - 360.0f;
-                            } else if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR < 0.0f) {
-                                renderer.angleY = 360.0f - deltaY * TOUCH_SCALE_FACTOR;
-                            } else {
-                                renderer.angleY += deltaY * TOUCH_SCALE_FACTOR;
-                            }
-                            if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR > 360.0f) {
-                                renderer.angleX += deltaX * TOUCH_SCALE_FACTOR - 360.0f;
-                            } else if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR < 0.0f) {
-                                renderer.angleX = 360.0f - deltaX * TOUCH_SCALE_FACTOR;
-
-                            } else {
-                                renderer.angleX += deltaX * TOUCH_SCALE_FACTOR;
-                            }
-
-                        }
-
-                        // Save current x, y
-                        previousX = currentX;
-                        previousY = currentY;
-                        break;
                 }
-                return true;  // Event handled
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float deltaX, deltaY;
+
+                // Modify rotational angles according to movement
+                if (renderer.state == MyGLRenderer.STATE_CUBE) {
+
+                    deltaX = (currentX - previousX)*TOUCH_SCALE_FACTOR;
+                    deltaY = (currentY - previousY)*TOUCH_SCALE_FACTOR;
+                    renderer.mDeltaX = deltaX;
+                    renderer.mDeltaY = deltaY;
+                    if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR > 360.0f) {
+                        renderer.angleY += deltaY * TOUCH_SCALE_FACTOR - 360.0f;
+                    } else if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR < 0.0f) {
+                        renderer.angleY += 360.0f + deltaY * TOUCH_SCALE_FACTOR;
+                    } else {
+                        renderer.angleY += deltaY * TOUCH_SCALE_FACTOR;
+                    }
+
+                    if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR > 360.0f) {
+                        renderer.angleX += deltaX * TOUCH_SCALE_FACTOR - 360.0f;
+                    } else if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR < 0.0f) {
+                        renderer.angleX += 360.0f + deltaX * TOUCH_SCALE_FACTOR;
+                    } else {
+                        renderer.angleX += deltaX * TOUCH_SCALE_FACTOR;
+                    }
+
+
+
+                }
+
+
+                break;
         }
+        // Save current x, y
+        previousX = currentX;
+        previousY = currentY;
+        renderer.change = true;
+        return true;  // Event handled
+    }
 
     public void setState(int state) {
         if (renderer.state == MyGLRenderer.STATE_CUBE ||
@@ -206,7 +212,7 @@ public class GameView extends GLSurfaceView {
         renderer.back();
     }
 
-    public  void newGame() {
+    public void newGame() {
         renderer.newGame();
     }
 
@@ -214,7 +220,7 @@ public class GameView extends GLSurfaceView {
         turnText = textView;
     }
 
-    public void setGameActivity(GameActivity gameActivity){
+    public void setGameActivity(GameActivity gameActivity) {
         this.gameActivity = gameActivity;
     }
 
@@ -231,12 +237,12 @@ public class GameView extends GLSurfaceView {
 
     }
 
-    public int[][][] getPlayBoard(){
+    public int[][][] getPlayBoard() {
         return renderer.getPlayBoard();
     }
 
-    public boolean markSquare(Move move){
-        if(renderer.markSquare(move)){
+    public boolean markSquare(Move move) {
+        if (renderer.markSquare(move)) {
             switchTurn();
             return true;
         }
@@ -244,12 +250,12 @@ public class GameView extends GLSurfaceView {
 
     }
 
-    public void enableTouch(){
+    public void enableTouch() {
         enableTouch = true;
         System.out.println("enabling touch");
     }
 
-    public void disableTouch(){
+    public void disableTouch() {
         enableTouch = false;
         System.out.println("diabling touch");
 

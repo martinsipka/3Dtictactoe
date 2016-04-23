@@ -2,13 +2,13 @@ apply plugin: 'com.android.model.application'
 
 model {
     android {
-        compileSdkVersion = 18
+        compileSdkVersion = 20
         buildToolsVersion = "20.0.0"
 
         defaultConfig.with {
             applicationId = "com.example.dtictactoe"
             minSdkVersion.apiLevel = 8
-            targetSdkVersion.apiLevel = 18
+            targetSdkVersion.apiLevel = 23
 
 
         }
@@ -18,16 +18,16 @@ model {
         moduleName = "mcts"
     }
 
-    android.buildTypes {
+   /* android.buildTypes {
         release {
             minifyEnabled = false
             proguardFiles += file('proguard-rules.txt')
         }
-    }
+    }*/
 
 }
 
 
     dependencies {
-        compile 'com.android.support:support-v4:18.0.0'
+        compile 'com.android.support:support-v4:20.0.0'
     }

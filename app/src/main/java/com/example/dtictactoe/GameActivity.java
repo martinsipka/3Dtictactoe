@@ -13,6 +13,10 @@ import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.R;
 import com.example.dtictactoe.backend.Move;
 import com.example.dtictactoe.frontend.GameView;
+import com.example.dtictactoe.frontend.MyGLRenderer;
+import com.example.dtictactoe.frontend.animations.Animation;
+import com.example.dtictactoe.frontend.animations.DismemberCubeAnimation;
+import com.example.dtictactoe.frontend.animations.MakeCubeAnimation;
 
 public class GameActivity extends Activity {
 
@@ -35,6 +39,13 @@ public class GameActivity extends Activity {
             public void onClick(View v) {
                 glView.setState(-localState);
                 localState = -localState;
+                Animation animation;
+                if(localState == MyGLRenderer.STATE_CUBE){
+                    animation = new DismemberCubeAnimation();
+                }else if(localState == MyGLRenderer.STATE_FLOORS){
+                    animation = new MakeCubeAnimation();
+                }
+                glView.pushNewAnimation(animation);
             }
         });
         Button back = (Button) findViewById(R.id.back_button);

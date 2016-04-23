@@ -6,18 +6,17 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import android.opengl.Matrix;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.dtictactoe.AI.ArtificialIntelligence;
 import com.example.dtictactoe.AI.ScoreCheck;
-import com.example.dtictactoe.animations.Animation;
+import com.example.dtictactoe.frontend.animations.Animation;
 import com.example.dtictactoe.backend.Move;
 
 import java.util.Deque;
 import java.util.EmptyStackException;
 import java.util.Stack;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
@@ -32,11 +31,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public static final int TURN_RED = 1;
     public static final int TURN_BLUE = 5;
 
-    private static final float animSpeed = 0.02f;
+    public static final float animSpeed = 0.02f;
 
     Context context;
     LineFloor lineFloor;
-    private boolean rotate = true;
+    public boolean rotate = true;
 
     private int[][][] playBoard = new int[4][4][4];
     private Stack<Move> history = new Stack<Move>();
@@ -48,16 +47,26 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float speedX = 0.0f;
     float angleY = 0.0f;
     float speedY = 0.0f;
-    float[][] floorCords = new float[4][3];
+    float mDeltaX = 0.0f;
+    float mDeltaY = 0.0f;
+    public float[][] floorCords = new float[4][3];
     int turn = 1;
-    boolean dismem = true;
-    int state;
-    int zoomX;
-    int zoomY;
-    float cPosX;
-    float cPosY;
-    float cPosZ;
+    public boolean dismem = true;
+    public boolean change = true, animActive = false;
+    public int state;
+    public int zoomX;
+    public int zoomY;
+    public float cPosX;
+    public float cPosY;
+    public float cPosZ;
     ScoreCheck sc;
+
+    //Rotation matrices
+    public final float[] mAccumulatedRotation = new float[16];
+    private float[] mCurrentRotation = new float[16];
+    private final float[] mTemporaryMatrix = new float[16];
+    private final float[] mTestRotation = new float[16];
+
 
     Deque<Animation> animations;
 
@@ -70,36 +79,67 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        gl.glLoadIdentity();
-        gl.glTranslatef(cPosX, cPosY, -6.0f + cPosZ * 4);
-        gl.glRotatef(angleX, 0.0f, 1.0f, 0.0f);
-        gl.glRotatef(angleY, 1.0f, 0.0f, 0.0f);
+        animActive =  !(state == STATE_FLOORS || state == STATE_CUBE);
+        if(!change && !animActive){
+            try {
+                Thread.sleep(18);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else {
+            gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+            gl.glLoadIdentity();
+            gl.glTranslatef(cPosX, cPosY, -6.0f + cPosZ * 4);
 
-        if (state == STATE_MAKING_CUBE) {
-            makeCubeAnim();
-        } else if (state == STATE_DESTROYING_CUBE) {
-            dismemberCubeAnim();
-        } else if (state == STATE_ZOOMING_IN) {
-            zoomInAnim();
-        } else if (state == STATE_ZOOMING_OUT) {
-            zoomOutAnim();
+            // Set a matrix that contains the current rotation.
+            Matrix.setIdentityM(mCurrentRotation, 0);
+            Matrix.rotateM(mCurrentRotation, 0, mDeltaX, 0.0f, 1.0f, 0.0f);
+            Matrix.rotateM(mCurrentRotation, 0, mDeltaY, 1.0f, 0.0f, 0.0f);
+            mDeltaX = 0.0f;
+            mDeltaY = 0.0f;
+
+            // Multiply the current rotation by the accumulated rotation, and then set the accumulated
+            // rotation to the result.
+            Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0, mAccumulatedRotation, 0);
+            System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0, 16);
+
+        /*for(int i = 0; i<4; i++){
+            for(int j = 0; j<4; j++){
+                System.out.print(mAccumulatedRotation[4*i+j]+ " ");
+            }
+            System.out.println();
+        }*/
+            // Rotate the cube taking the overall rotation into account.
+            gl.glMultMatrixf(mAccumulatedRotation, 0);
+
+
+            if (state == STATE_MAKING_CUBE) {
+                makeCubeAnim();
+            } else if (state == STATE_DESTROYING_CUBE) {
+                dismemberCubeAnim();
+            } else if (state == STATE_ZOOMING_IN) {
+                zoomInAnim();
+            } else if (state == STATE_ZOOMING_OUT) {
+                zoomOutAnim();
+            }
+
+            gl.glEnable(GL10.GL_LINE_SMOOTH);
+
+
+            for (int k = 0; k < 4; k++) {
+                gl.glPushMatrix();
+                gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
+
+                lineFloor.drawFloor(gl, k);
+                gl.glPopMatrix();
+            }
+
+            // Update the rotational angle after each refresh.
+            angleX += speedX;
+            angleY += speedY;
+            change = false;
+
         }
-
-        gl.glEnable(GL10.GL_LINE_SMOOTH);
-
-
-        for (int k = 0; k < 4; k++) {
-            gl.glPushMatrix();
-            gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
-
-            lineFloor.drawFloor(gl, k);
-            gl.glPopMatrix();
-        }
-
-        // Update the rotational angle after each refresh.
-        angleX += speedX;
-        angleY += speedY;
     }
 
     @Override
@@ -117,6 +157,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Setup perspective projection, with aspect ratio matches viewport
         gl.glMatrixMode(GL10.GL_PROJECTION); // Select projection matrix
         gl.glLoadIdentity(); // Reset projection matrix
+
+       
         // Use perspective projection
         GLU.gluPerspective(gl, 45, aspect, 0.1f, 100.f);
 
@@ -146,6 +188,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             floorCords[i][1] = 0.0f;
             floorCords[i][2] = -0.75f + 0.5f * i;
         }
+
+        Matrix.setIdentityM(mAccumulatedRotation, 0);
+        Matrix.setIdentityM(mTestRotation, 0);
+
 
     }
 
@@ -189,7 +235,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private void dismemberCubeAnim() {
         int sign = 1;
         if (rotate) {
-            rotateAnimation();
+            Matrix.setIdentityM(mAccumulatedRotation, 0);
+            //rotateAnimation();
+            rotate = false;
         }
         if (dismem && !rotate) {
             for (int i = 0; i < 4; i++) {
