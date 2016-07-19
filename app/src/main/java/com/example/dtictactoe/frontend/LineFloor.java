@@ -13,6 +13,11 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class LineFloor {
 
+    public static final int RED_CUBE = 1;
+    public static final int BLUE_CUBE = 5;
+    public static final int RED_WIN = 21;
+    public static final int BLUE_WIN = 85;
+
     private FloatBuffer vertexBuffer, normalBuffer;
     private int[][][] a;
     private int floorIndex;
@@ -50,7 +55,7 @@ public class LineFloor {
         normalBuffer.position(0);
     }
 
-    public void drawFloor(GL10 gl, int i) {
+    public void drawFloor(GL10 gl, int i, float pulse) {
         //gl.glFrontFace(GL10.GL_CCW);
         floorIndex = i;
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
@@ -59,11 +64,11 @@ public class LineFloor {
         gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
         //gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
-        linedFloor(gl, i);
+        linedFloor(gl, i, pulse);
         // gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, texBuffer);
     }
 
-    private void linedFloor(GL10 gl, int position) {
+    private void linedFloor(GL10 gl, int position, float pulse) {
         gl.glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
 
         for (int j = 0; j < 4; j++) {
@@ -74,7 +79,7 @@ public class LineFloor {
             for (int i = 0; i < 4; i++) {
                 gl.glPushMatrix();
                 gl.glTranslatef(-0.75f + 0.5f * i, 0.0f, 0.0f);
-                drawCube(gl, i, 3-j, position);
+                drawCube(gl, i, 3-j, position, pulse);
                 gl.glPopMatrix();
             }
             gl.glPopMatrix();
@@ -86,34 +91,36 @@ public class LineFloor {
         //gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
     }
 
-    private void drawCube(GL10 gl, int x, int y, int z) {
+    private void drawCube(GL10 gl, int x, int y, int z, float pulse) {
+
+
 
         if (a[x][y][z] != 0) {
 
             gl.glPushMatrix();
             gl.glTranslatef(0.0f, 0.2f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
             gl.glTranslatef(0.0f, 0.4f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glPopMatrix();
 
             gl.glPushMatrix();
             gl.glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
             gl.glTranslatef(0.0f, 0.2f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
             gl.glTranslatef(0.0f, 0.4f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glPopMatrix();
 
             gl.glPushMatrix();
             gl.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
             gl.glTranslatef(0.0f, 0.2f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
             gl.glTranslatef(0.0f, 0.4f, 0.0f);
-            drawColoredSite(gl, a[x][y][z]);
+            drawColoredSite(gl, a[x][y][z], pulse);
             gl.glPopMatrix();
 
 
@@ -150,13 +157,33 @@ public class LineFloor {
         gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 4);
     }
 
-    private void drawColoredSite(GL10 gl, int color) {
-        if (color == 1)
+    private void drawColoredSite(GL10 gl, int color, float pulse) {
+        if (color == RED_CUBE) {
             gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-        else
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+        } else if(color == BLUE_CUBE){
             gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
-        gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
-        gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+        } else if(color == RED_WIN){
+            gl.glDisable(GL10.GL_LIGHT0);
+            gl.glEnable(GL10.GL_LIGHT1);
+            gl.glColor4f(0.5f + pulse, 0.0f, 0.0f, 1.0f);
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+            gl.glDisable(GL10.GL_LIGHT1);
+            gl.glEnable(GL10.GL_LIGHT0);
+        } else if(color == BLUE_WIN){
+            gl.glDisable(GL10.GL_LIGHT0);
+            gl.glEnable(GL10.GL_LIGHT1);
+            gl.glColor4f(0.0f, 0.0f, 0.5f + pulse, 1.0f);
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+            gl.glDisable(GL10.GL_LIGHT1);
+            gl.glEnable(GL10.GL_LIGHT0);
+        }
+
     }
 
     //TODO nice X

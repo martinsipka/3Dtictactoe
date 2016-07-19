@@ -39,7 +39,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     LineFloor lineFloor;
 
     private int[][][] playBoard = new int[4][4][4];
+    private int[][] winningCombination = new int[4][3];
     private Stack<Move> history = new Stack<Move>();
+    private int winner;
 
     private static final String TAG = "RENDERTHREAD TAG";
 
@@ -47,8 +49,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float mDeltaX = 0.0f;
     float mDeltaY = 0.0f;
     public float[][] floorCords = new float[4][3];
+    private long time = 0;
     int turn = 1;
     public boolean wasRotation = true;
+    public boolean gameOver = false;
     public int state = STATE_CUBE;
     public int zoomX;
     public int zoomY;
@@ -75,7 +79,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
-
+        if(gameOver){
+            time++;
+            viewReference.requestRender();
+        }
 
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity();
@@ -104,6 +111,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             if (currentAnim.perform(this)) {
                 animations.remove();
             }
+
             viewReference.requestRender();
         }
 
@@ -112,18 +120,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         gl.glEnable(GL10.GL_LINE_SMOOTH);
 
 
+        float pulse = (float) Math.sin(time/20.0f)/3.0f;
         for (int k = 0; k < 4; k++) {
             gl.glPushMatrix();
             gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
 
-            lineFloor.drawFloor(gl, k);
+            lineFloor.drawFloor(gl, k, pulse);
             gl.glPopMatrix();
         }
         //gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPositionBuffer);
 
         // Update the rotational angle after each refresh.
         wasRotation = false;
-
 
     }
 
@@ -185,6 +193,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, lightAmbientBuffer);
 
+
         ByteBuffer vbbs = ByteBuffer.allocateDirect(4 * 4);
         vbbs.order(ByteOrder.nativeOrder());
         FloatBuffer lightSpecularBuffer = vbbs.asFloatBuffer();
@@ -200,6 +209,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         lightDiffuseBuffer.position(0);
 
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, lightDiffuseBuffer);
+        gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, lightDiffuseBuffer);
 
         // surface removal
         gl.glDepthFunc(GL10.GL_LEQUAL); // The type of depth testing to do
@@ -224,6 +234,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean markAsPlayer(int xCoor, int yCoor) {
+        if(gameOver) {
+            return false;
+        }
         int zCoor;
         if (zoomX == -1) {
             if (zoomY == 1)
@@ -251,15 +264,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         history.add(new Move(xCoor, yCoor, zCoor, turn));
 
         playBoard[xCoor][yCoor][zCoor] = turn;
-        //lineFloor.updateTable(playBoard);
+
         int checked = sc.check(xCoor, yCoor, zCoor);
         Log.d(TAG, Integer.toString(checked));
         if (checked == 1) {
             Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
-            //  endGame();
+            winner = LineFloor.RED_WIN;
+            endGame();
         } else if (checked == 2) {
             Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
-            // endGame();
+            winner = LineFloor.BLUE_WIN;
+            endGame();
         }
         if (turn == 1) {
             turn = 5;
@@ -294,6 +309,15 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
         viewReference.requestRender();
 
+    }
+
+    public void endGame(){
+        this.winningCombination = sc.getWinningCombination();
+        for(int i = 0; i < 4; i++){
+            playBoard[winningCombination[i][0]][winningCombination[i][1]][winningCombination[i][2]]
+                    = winner;
+        }
+        gameOver = true;
     }
 
     public void newGame() {
