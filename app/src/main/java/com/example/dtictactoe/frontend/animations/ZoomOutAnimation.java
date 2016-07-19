@@ -7,16 +7,24 @@ import com.example.dtictactoe.frontend.MyGLRenderer;
  */
 public class ZoomOutAnimation implements Animation {
 
+    public static final int STEPS = 30;
+    private NiceInterpolator zoomInterpolator;
+    private int step;
+
+    public ZoomOutAnimation(){
+        zoomInterpolator = new NiceInterpolator(1.0f, 0.0f);
+        step = 0;
+    }
+
     @Override
     public boolean perform(MyGLRenderer renderer) {
-        renderer.cPosX -= renderer.zoomX * MyGLRenderer.animSpeed;
-        renderer.cPosY -= renderer.zoomY * MyGLRenderer.animSpeed;
-        renderer.cPosZ -= renderer.animSpeed;
-        if (renderer.cPosX * renderer.zoomX < 0.0f){
+        step++;
+        float value = zoomInterpolator.interpolate((float) step/STEPS);
+        renderer.cPosX = renderer.zoomX * value;
+        renderer.cPosY = renderer.zoomY * value;
+        renderer.cPosZ = value;
+        if (step == STEPS) {
             renderer.state = MyGLRenderer.STATE_FLOORS;
-            renderer.cPosX = 0.0f;
-            renderer.cPosY = 0.0f;
-            renderer.cPosZ = 0.0f;
             return true;
         }
         return false;

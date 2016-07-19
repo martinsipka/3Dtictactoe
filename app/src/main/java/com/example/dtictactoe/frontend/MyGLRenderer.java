@@ -11,31 +11,32 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dtictactoe.AI.ScoreCheck;
+import com.example.dtictactoe.backend.AlgebraObjects.Quaternion;
 import com.example.dtictactoe.frontend.animations.Animation;
 import com.example.dtictactoe.backend.Move;
+import com.example.dtictactoe.frontend.animations.ZoomOutAnimation;
 
-import java.util.Deque;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.EmptyStackException;
+import java.util.Queue;
 import java.util.Stack;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public static final int STATE_CUBE = 0;
-    public static final int STATE_MAKING_CUBE = -1;
-    public static final int STATE_DESTROYING_CUBE = 1;
     public static final int STATE_FLOORS = 3;
-    public static final int STATE_ZOOMING_IN = 4;
     public static final int STATE_ZOOMED_IN = 5;
-    public static final int STATE_ZOOMING_OUT = 6;
 
     public static final int TURN_RED = 1;
     public static final int TURN_BLUE = 5;
 
-    public static final float animSpeed = 0.02f;
+    private static final float lighPosition[] = {5.0f, 30.0f, 10.0f, 0.0f};
 
     Context context;
     LineFloor lineFloor;
-    public boolean rotate = true;
 
     private int[][][] playBoard = new int[4][4][4];
     private Stack<Move> history = new Stack<Move>();
@@ -43,103 +44,87 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = "RENDERTHREAD TAG";
 
     // Rotational angle and speed (NEW)
-    float angleX = 0.0f;
-    float speedX = 0.0f;
-    float angleY = 0.0f;
-    float speedY = 0.0f;
     float mDeltaX = 0.0f;
     float mDeltaY = 0.0f;
     public float[][] floorCords = new float[4][3];
     int turn = 1;
-    public boolean dismem = true;
-    public boolean change = true, animActive = false;
-    public int state;
+    public boolean wasRotation = true;
+    public int state = STATE_CUBE;
     public int zoomX;
     public int zoomY;
     public float cPosX;
     public float cPosY;
     public float cPosZ;
     ScoreCheck sc;
+    private FloatBuffer lightPositionBuffer;
 
     //Rotation matrices
-    public final float[] mAccumulatedRotation = new float[16];
-    private float[] mCurrentRotation = new float[16];
-    private final float[] mTemporaryMatrix = new float[16];
-    private final float[] mTestRotation = new float[16];
+    public Quaternion currentRotation = new Quaternion();
 
+    Queue<Animation> animations;
+    private GameView viewReference;
 
-    Deque<Animation> animations;
-
-    public MyGLRenderer(Context context) {
+    public MyGLRenderer(Context context, GameView viewReference) {
         this.context = context;
         lineFloor = new LineFloor(playBoard);
         sc = new ScoreCheck(playBoard);
+        animations = new LinkedBlockingQueue<Animation>();
+        this.viewReference = viewReference;
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
-        animActive =  !(state == STATE_FLOORS || state == STATE_CUBE);
-        if(!change && !animActive){
-            try {
-                Thread.sleep(18);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }else {
-            gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-            gl.glLoadIdentity();
-            gl.glTranslatef(cPosX, cPosY, -6.0f + cPosZ * 4);
 
-            // Set a matrix that contains the current rotation.
-            Matrix.setIdentityM(mCurrentRotation, 0);
-            Matrix.rotateM(mCurrentRotation, 0, mDeltaX, 0.0f, 1.0f, 0.0f);
-            Matrix.rotateM(mCurrentRotation, 0, mDeltaY, 1.0f, 0.0f, 0.0f);
+
+        gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+        gl.glLoadIdentity();
+        gl.glTranslatef(cPosX, cPosY, -7.0f + cPosZ * 4);
+
+
+        // Set a matrix that contains the current rotation.
+        if (wasRotation) {
+            /*Matrix.rotateM(mCurrentRotation, 0, mDeltaX, 0.0f, 1.0f, 0.0f);
+            Matrix.rotateM(mCurrentRotation, 0, mDeltaY, 1.0f, 0.0f, 0.0f);*/
+            //Using quaternions
+            currentRotation.mulInplace(new Quaternion(0.0f, 1.0f, 0.0f, -mDeltaX));
+            currentRotation.mulInplace(new Quaternion(1.0f, 0.0f, 0.0f, -mDeltaY));
             mDeltaX = 0.0f;
             mDeltaY = 0.0f;
 
             // Multiply the current rotation by the accumulated rotation, and then set the accumulated
             // rotation to the result.
-            Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0, mAccumulatedRotation, 0);
-            System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0, 16);
-
-        /*for(int i = 0; i<4; i++){
-            for(int j = 0; j<4; j++){
-                System.out.print(mAccumulatedRotation[4*i+j]+ " ");
-            }
-            System.out.println();
-        }*/
-            // Rotate the cube taking the overall rotation into account.
-            gl.glMultMatrixf(mAccumulatedRotation, 0);
-
-
-            if (state == STATE_MAKING_CUBE) {
-                makeCubeAnim();
-            } else if (state == STATE_DESTROYING_CUBE) {
-                dismemberCubeAnim();
-            } else if (state == STATE_ZOOMING_IN) {
-                zoomInAnim();
-            } else if (state == STATE_ZOOMING_OUT) {
-                zoomOutAnim();
-            }
-
-            gl.glEnable(GL10.GL_LINE_SMOOTH);
-
-
-            for (int k = 0; k < 4; k++) {
-                gl.glPushMatrix();
-                gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
-
-                lineFloor.drawFloor(gl, k);
-                gl.glPopMatrix();
-            }
-
-            // Update the rotational angle after each refresh.
-            angleX += speedX;
-            angleY += speedY;
-            change = false;
-
+            /*Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0, mAccumulatedRotation, 0);
+            System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0, 16);*/
         }
+
+
+        if (!animations.isEmpty()) {
+            Animation currentAnim = animations.element();
+            if (currentAnim.perform(this)) {
+                animations.remove();
+            }
+            viewReference.requestRender();
+        }
+
+        gl.glMultMatrixf(currentRotation.toMatrix().getAsArray(), 0);
+
+        gl.glEnable(GL10.GL_LINE_SMOOTH);
+
+
+        for (int k = 0; k < 4; k++) {
+            gl.glPushMatrix();
+            gl.glTranslatef(floorCords[k][0], floorCords[k][1], floorCords[k][2]);
+
+            lineFloor.drawFloor(gl, k);
+            gl.glPopMatrix();
+        }
+        //gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPositionBuffer);
+
+        // Update the rotational angle after each refresh.
+        wasRotation = false;
+
+
     }
 
     @Override
@@ -157,10 +142,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Setup perspective projection, with aspect ratio matches viewport
         gl.glMatrixMode(GL10.GL_PROJECTION); // Select projection matrix
         gl.glLoadIdentity(); // Reset projection matrix
-
-       
+        Log.d("aspect", Float.toString(aspect));
+        float yangle = 25 / aspect;
         // Use perspective projection
-        GLU.gluPerspective(gl, 45, aspect, 0.1f, 100.f);
+        GLU.gluPerspective(gl, yangle, aspect, 0.1f, 100.f);
 
         gl.glMatrixMode(GL10.GL_MODELVIEW); // Select model-view matrix
         gl.glLoadIdentity();
@@ -170,10 +155,52 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     // Call back when the surface is first created or re-created.
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
         gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set color's clear-value to
+        //gl.glClearColor(176/255.0f, 190/255.0f, 197/255.0f, 1.0f);
         // black
         gl.glClearDepthf(1.0f); // Set depth's clear-value to farthest
         gl.glEnable(GL10.GL_DEPTH_TEST); // Enables depth-buffer for hidden
+        gl.glEnable(GL10.GL_LIGHTING);
+        gl.glEnable(GL10.GL_LIGHT0);
+        gl.glEnable(GL10.GL_COLOR_MATERIAL);
+
+        ByteBuffer vbb = ByteBuffer.allocateDirect(4 * 4);
+        vbb.order(ByteOrder.nativeOrder());
+        lightPositionBuffer = vbb.asFloatBuffer();
+        lightPositionBuffer.put(lighPosition);
+        lightPositionBuffer.position(0);
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPositionBuffer);
+
+        gl.glEnable(GL10.GL_LIGHT0);
+        float ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f};
+        float diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        float specularLight[] = {0.6f, 0.6f, 0.6f, 1.0f};
+
+        ByteBuffer vbba = ByteBuffer.allocateDirect(4 * 4);
+        vbba.order(ByteOrder.nativeOrder());
+        FloatBuffer lightAmbientBuffer = vbba.asFloatBuffer();
+        lightAmbientBuffer.put(ambientLight);
+        lightAmbientBuffer.position(0);
+
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, lightAmbientBuffer);
+
+        ByteBuffer vbbs = ByteBuffer.allocateDirect(4 * 4);
+        vbbs.order(ByteOrder.nativeOrder());
+        FloatBuffer lightSpecularBuffer = vbbs.asFloatBuffer();
+        lightSpecularBuffer.put(specularLight);
+        lightSpecularBuffer.position(0);
+
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, lightSpecularBuffer);
+
+        ByteBuffer vbbd = ByteBuffer.allocateDirect(4 * 4);
+        vbbd.order(ByteOrder.nativeOrder());
+        FloatBuffer lightDiffuseBuffer = vbba.asFloatBuffer();
+        lightDiffuseBuffer.put(diffuseLight);
+        lightDiffuseBuffer.position(0);
+
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, lightDiffuseBuffer);
+
         // surface removal
         gl.glDepthFunc(GL10.GL_LEQUAL); // The type of depth testing to do
         gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST); // nice
@@ -189,138 +216,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             floorCords[i][2] = -0.75f + 0.5f * i;
         }
 
-        Matrix.setIdentityM(mAccumulatedRotation, 0);
-        Matrix.setIdentityM(mTestRotation, 0);
-
-
     }
 
-    private void makeCubeAnim() {
-        int sign = -1;
-        if (dismem) {
-            for (int i = 0; i < 4; i++) {
-                if (i % 2 == 1)
-                    sign = -1 * sign;
-                floorCords[i][0] += sign * animSpeed;
-                if (i % 3 == 0)
-                    sign = -sign;
-                floorCords[i][1] += sign * animSpeed;
-                sign = state;
-
-                if (floorCords[3][1] < 0.0f) {
-                    for (int j = 0; j < 4; j++) {
-                        floorCords[j][0] = 0.0f;
-                        floorCords[j][1] = 0.0f;
-                        floorCords[j][2] = -0.75f + 0.5f * j;
-                    }
-                    state = STATE_CUBE;
-                    rotate = true;
-                }
-            }
-        } else {
-
-            for (int j = 0; j < 4; j++) {
-                floorCords[j][2] += (j + 3.0f) * 0.01f;
-                if (floorCords[j][2] > 0.75f) {
-                    for (int i = 0; i < 4; i++) {
-                        floorCords[i][2] = -0.75f + 0.5f * i;
-                    }
-                    dismem = true;
-                }
-            }
-
-        }
+    public void pushNewAnim(Animation animation) {
+        animations.add(animation);
+        viewReference.requestRender();
     }
 
-    private void dismemberCubeAnim() {
-        int sign = 1;
-        if (rotate) {
-            Matrix.setIdentityM(mAccumulatedRotation, 0);
-            //rotateAnimation();
-            rotate = false;
-        }
-        if (dismem && !rotate) {
-            for (int i = 0; i < 4; i++) {
-                if (i % 2 == 1)
-                    sign = -1 * sign;
-                floorCords[i][0] += sign * animSpeed;
-                if (i % 3 == 0)
-                    sign = -sign;
-                floorCords[i][1] += sign * animSpeed;
-                sign = state;
-
-                if (floorCords[3][1] > 1.15f) {
-
-                    dismem = false;
-
-                }
-            }
-        } else if (!rotate) {
-
-            for (int j = 0; j < 4; j++) {
-                floorCords[j][2] -= (j + 3.0f) * animSpeed;
-                if (floorCords[j][2] < -3.0f) {
-                    for(int p = 0; p < 4; p++){
-                        floorCords[p][2] = -3.0f;
-                    }
-                    state = STATE_FLOORS;
-
-                }
-            }
-        }
-    }
-
-    private void zoomInAnim() {
-        cPosX += zoomX * animSpeed;
-        cPosY += zoomY * animSpeed;
-        cPosZ += animSpeed;
-        if (cPosX * zoomX > 1.0f) {
-            state = STATE_ZOOMED_IN;
-            cPosX = 1.0f * zoomX;
-            cPosY = 1.0f * zoomY;
-            cPosZ = 1.0f;
-        }
-    }
-
-    private void zoomOutAnim() {
-        cPosX -= zoomX * animSpeed;
-        cPosY -= zoomY * animSpeed;
-        cPosZ -= animSpeed;
-        if (cPosX * zoomX < 0.0f){
-            state = STATE_FLOORS;
-            cPosX = 0.0f;
-            cPosY = 0.0f;
-            cPosZ = 0.0f;
-        }
-    }
-
-    private void rotateAnimation() {
-        int sgnX = 0, sgnY = 0;
-        if (angleX > 180.0f) {
-            sgnX = 1;
-        } else if (angleX < 180.0f) {
-            sgnX = -1;
-        }
-        if (angleY > 180.0f) {
-            sgnY = 1;
-        } else if (angleY < 180.0f) {
-            sgnY = -1;
-        }
-        angleX += sgnX * 1.0f;
-        angleY += sgnY * 1.0f;
-        if (angleX > 360.0f || angleX < 0.0f) {
-            angleX = 0.0f;
-            if (angleY == 0.0f)
-                rotate = false;
-        }
-        if (angleY > 360.0f || angleY < 0.0f) {
-            angleY = 0.0f;
-            if (angleX == 0.0f)
-                rotate = false;
-        }
-    }
-
-    public boolean markAsPlayer(int xCoor, int yCoor){
+    public boolean markAsPlayer(int xCoor, int yCoor) {
         int zCoor;
         if (zoomX == -1) {
             if (zoomY == 1)
@@ -336,7 +239,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return markSquare(xCoor, yCoor, zCoor);
     }
 
-    public boolean markSquare(Move move){
+    public boolean markSquare(Move move) {
         return markSquare(move.getX(), move.getY(), move.getZ());
     }
 
@@ -346,8 +249,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             return false;
 
         history.add(new Move(xCoor, yCoor, zCoor, turn));
-
-        Log.d("x y z: ", xCoor + " " + yCoor + " " + zCoor);
 
         playBoard[xCoor][yCoor][zCoor] = turn;
         //lineFloor.updateTable(playBoard);
@@ -365,14 +266,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         } else {
             turn = 1;
         }
-        state = STATE_ZOOMING_OUT;
+        if(state == STATE_ZOOMED_IN) {
+            state = MyGLRenderer.STATE_FLOORS;
+            pushNewAnim(new ZoomOutAnimation());
+        }
+        viewReference.requestRender();
 
         return true;
-    }
-
-    private void endGame() {
-        state = STATE_CUBE;
-        lineFloor.updateTable(new int[4][4][4]);
     }
 
     public void back() {
@@ -388,19 +288,23 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             y = move.getY();
             z = move.getZ();
             playBoard[x][y][z] = 0;
-        } catch (EmptyStackException e){
+        } catch (EmptyStackException e) {
             e.printStackTrace();
             Toast.makeText(context, "No more moves in history!", Toast.LENGTH_LONG).show();
         }
+        viewReference.requestRender();
+
     }
 
-    public void newGame(){
+    public void newGame() {
         playBoard = new int[4][4][4];
         sc.updateTable(playBoard);
         lineFloor.updateTable(playBoard);
+        wasRotation = true;
+        viewReference.requestRender();
     }
 
-    public int[][][] getPlayBoard(){
+    public int[][][] getPlayBoard() {
         return playBoard;
     }
 }

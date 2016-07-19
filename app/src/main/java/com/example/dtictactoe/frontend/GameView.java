@@ -2,16 +2,17 @@ package com.example.dtictactoe.frontend;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import android.widget.TextView;
 
 import com.example.dtictactoe.GameActivity;
 import com.example.dtictactoe.backend.Move;
+import com.example.dtictactoe.frontend.animations.Animation;
+import com.example.dtictactoe.frontend.animations.ZoomInAnimation;
+import com.example.dtictactoe.frontend.animations.ZoomOutAnimation;
 
 public class GameView extends GLSurfaceView {
 
@@ -24,20 +25,22 @@ public class GameView extends GLSurfaceView {
     private float previousY;
     private float width;
     private float height;
-    private int bottomMargin = 344;
-    private int topMargin = 220;
-    private int leftMargin = 30;
-    private int rightMargin = 120;
-    private TextView turnText;
-    private int turn = 1;
+    private float bottomMargin;
+    private float topMargin;
+    private float leftMargin;
+    private float rightMargin;
+    private RoundedImageView roundedImageView;
+    private int turn = MyGLRenderer.TURN_RED;
     private boolean enableTouch = true;
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        renderer = new MyGLRenderer(context);
+        renderer = new MyGLRenderer(context, this);
 
         this.setRenderer(renderer);
+        this.setRenderMode(RENDERMODE_WHEN_DIRTY);
+
         // Request focus, otherwise key/button won't react
         this.requestFocus();
         this.setFocusableInTouchMode(true);
@@ -46,11 +49,11 @@ public class GameView extends GLSurfaceView {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 width = getWidth();
-                leftMargin = (int) (width * 0.04f);
-                rightMargin = (int) (width * 0.17f);
+                leftMargin =  0.04f;
+                rightMargin = 0.17f;
                 height = getHeight();
-                topMargin = (int) (height * 0.2f);
-                bottomMargin = (int) (height * 0.3f);
+                topMargin = 0.21f;
+                bottomMargin = 0.3f;
                 Log.d(TAG, width + " " + height);
             }
 
@@ -78,125 +81,113 @@ public class GameView extends GLSurfaceView {
         float currentX = evt.getX();
         float currentY = evt.getY();
 
-       // Log.d(TAG, "current touch: " + currentX + " , " + currentY);
+        if (renderer.animations.isEmpty()) {
+            switch (evt.getAction()) {
 
-        switch (evt.getAction()) {
-
-            case MotionEvent.ACTION_DOWN:
-
-                if (renderer.state == MyGLRenderer.STATE_FLOORS) {
+                case MotionEvent.ACTION_DOWN:
 
 
-                    if (currentX > width / 2) {
-                        renderer.zoomX = -1;
-                    } else {
-                        renderer.zoomX = 1;
-                    }
-                    if (currentY > height / 2) {
-                        renderer.zoomY = 1;
-                    } else {
-                        renderer.zoomY = -1;
-                    }
+                    if (renderer.state == MyGLRenderer.STATE_FLOORS) {
 
-                    renderer.state = MyGLRenderer.STATE_ZOOMING_IN;
 
-                } else if (renderer.state == MyGLRenderer.STATE_ZOOMED_IN) {
-                    int xCoor;
-                    int yCoor;
-                    float left, right, top, bottom;
-                    if (renderer.zoomX == -1) {
-                        left = rightMargin;
-                        right = leftMargin;
-                    } else {
-                        left = leftMargin;
-                        right = rightMargin;
-                    }
-                    if (renderer.zoomY == 1) {
-                        top = bottomMargin;
-                        bottom = topMargin;
-                    } else {
-                        top = topMargin;
-                        bottom = bottomMargin;
-                    }
-                    Log.d(TAG, " " + currentX);
-                    if (currentX < left || currentX > width - right) {
-                        renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
-                        return true;
-                    }
-                    if (currentY < top || currentY > height - bottom) {
-                        renderer.state = MyGLRenderer.STATE_ZOOMING_OUT;
-                        return true;
-                    }
+                        if (currentX > width / 2) {
+                            renderer.zoomX = -1;
+                        } else {
+                            renderer.zoomX = 1;
+                        }
+                        if (currentY > height / 2) {
+                            renderer.zoomY = 1;
+                        } else {
+                            renderer.zoomY = -1;
+                        }
 
-                    float relativeX = currentX - left;
-                    float relativeY = currentY - top;
+                        renderer.pushNewAnim(new ZoomInAnimation());
 
-                    float relativeWidth = width - left - right;
-                    float relativeHeight = height - top - bottom;
 
-                    if (relativeX < relativeWidth / 4) {
-                        xCoor = 0;
-                    } else if (relativeX < relativeWidth / 2) {
-                        xCoor = 1;
-                    } else if (relativeX < relativeWidth * 2 / 3) {
-                        xCoor = 2;
-                    } else {
-                        xCoor = 3;
-                    }
-                    if (relativeY < relativeHeight / 4) {
-                        yCoor = 0;
-                    } else if (relativeY < relativeHeight / 2) {
-                        yCoor = 1;
-                    } else if (relativeY < relativeHeight * 2 / 3) {
-                        yCoor = 2;
-                    } else {
-                        yCoor = 3;
-                    }
-                    if (enableTouch) {
+                    } else if (renderer.state == MyGLRenderer.STATE_ZOOMED_IN) {
+
+                        int xCoor;
+                        int yCoor;
+
+                        float left, right, top, bottom;
+
+                        if (renderer.zoomX == -1) {
+                            left = rightMargin;
+                            right = leftMargin;
+                        } else {
+                            left = leftMargin;
+                            right = rightMargin;
+                        }
+                        if (renderer.zoomY == 1) {
+                            top = bottomMargin;
+                            bottom = topMargin;
+                        } else {
+                            top = topMargin;
+                            bottom = bottomMargin;
+                        }
+
+                        if (currentX/width < left || currentX/width > 1.0f - right) {
+                            renderer.pushNewAnim(new ZoomOutAnimation());
+                            renderer.state = MyGLRenderer.STATE_FLOORS;
+                            return true;
+                        }
+                        if (currentY/height < top || currentY/height > 1.0f - bottom) {
+                            renderer.pushNewAnim(new ZoomOutAnimation());
+                            renderer.state = MyGLRenderer.STATE_FLOORS;
+                            return true;
+                        }
+
+                        float relativeX = currentX  / width;
+                        float relativeY = currentY / height;
+                        if (relativeX < 0.251f - leftMargin + left) {
+                            xCoor = 0;
+                        } else if (relativeX < 0.444f - leftMargin + left) {
+                            xCoor = 1;
+                        } else if (relativeX < 0.631 - leftMargin + left) {
+                            xCoor = 2;
+                        } else {
+                            xCoor = 3;
+                        }
+                        if (relativeY < 0.35f - topMargin + top) {
+                            yCoor = 0;
+                        } else if (relativeY < 0.464f - topMargin + top) {
+                            yCoor = 1;
+                        } else if (relativeY < 0.576f - topMargin + top) {
+                            yCoor = 2;
+                        } else {
+                            yCoor = 3;
+                        }
+
                         if (renderer.markAsPlayer(xCoor, yCoor)) {
                             switchTurn();
                             gameActivity.nextMove();
                         }
                     }
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                float deltaX, deltaY;
 
-                // Modify rotational angles according to movement
-                if (renderer.state == MyGLRenderer.STATE_CUBE) {
 
-                    deltaX = (currentX - previousX)*TOUCH_SCALE_FACTOR;
-                    deltaY = (currentY - previousY)*TOUCH_SCALE_FACTOR;
-                    renderer.mDeltaX = deltaX;
-                    renderer.mDeltaY = deltaY;
-                    if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR > 360.0f) {
-                        renderer.angleY += deltaY * TOUCH_SCALE_FACTOR - 360.0f;
-                    } else if (renderer.angleY + deltaY * TOUCH_SCALE_FACTOR < 0.0f) {
-                        renderer.angleY += 360.0f + deltaY * TOUCH_SCALE_FACTOR;
-                    } else {
-                        renderer.angleY += deltaY * TOUCH_SCALE_FACTOR;
-                    }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float deltaX, deltaY;
 
-                    if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR > 360.0f) {
-                        renderer.angleX += deltaX * TOUCH_SCALE_FACTOR - 360.0f;
-                    } else if (renderer.angleX + deltaX * TOUCH_SCALE_FACTOR < 0.0f) {
-                        renderer.angleX += 360.0f + deltaX * TOUCH_SCALE_FACTOR;
-                    } else {
-                        renderer.angleX += deltaX * TOUCH_SCALE_FACTOR;
+                    // Modify rotational angles according to movement
+                    if (renderer.state == MyGLRenderer.STATE_CUBE) {
+
+                        deltaX = (currentX - previousX) * TOUCH_SCALE_FACTOR;
+                        deltaY = (currentY - previousY) * TOUCH_SCALE_FACTOR;
+                        renderer.mDeltaX = (float) Math.toRadians(deltaX);
+                        renderer.mDeltaY = (float) Math.toRadians(deltaY);
+                        renderer.wasRotation = true;
                     }
 
 
-
-                }
-
-
-                break;
+                    break;
+            }
         }
         // Save current x, y
         previousX = currentX;
         previousY = currentY;
-        renderer.change = true;
+
+        requestRender();
         return true;  // Event handled
     }
 
@@ -216,8 +207,17 @@ public class GameView extends GLSurfaceView {
         renderer.newGame();
     }
 
-    public void setTurnText(TextView textView) {
-        turnText = textView;
+    public int getState(){
+        return renderer.state;
+    }
+
+    public void pushNewAnim(Animation animation) {
+        renderer.pushNewAnim(animation);
+    }
+
+    public void setTurnText(RoundedImageView roundedImageView) {
+        this.roundedImageView = roundedImageView;
+        roundedImageView.setTurn(MyGLRenderer.TURN_RED);
     }
 
     public void setGameActivity(GameActivity gameActivity) {
@@ -226,12 +226,10 @@ public class GameView extends GLSurfaceView {
 
     private void switchTurn() {
         if (turn == MyGLRenderer.TURN_RED) {
-            turnText.setText("Blue turn");
-            turnText.setTextColor(Color.BLUE);
+            roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
             turn = MyGLRenderer.TURN_BLUE;
         } else if (turn == MyGLRenderer.TURN_BLUE) {
-            turnText.setText("Red turn");
-            turnText.setTextColor(Color.RED);
+            roundedImageView.setTurn(MyGLRenderer.TURN_RED);
             turn = MyGLRenderer.TURN_RED;
         }
 

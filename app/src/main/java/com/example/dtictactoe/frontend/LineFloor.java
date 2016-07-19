@@ -1,5 +1,7 @@
 package com.example.dtictactoe.frontend;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -11,8 +13,10 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class LineFloor {
 
-    private FloatBuffer vertexBuffer;
+    private FloatBuffer vertexBuffer, normalBuffer;
     private int[][][] a;
+    private int floorIndex;
+    public static final int[][] floorColors = {{255, 86, 34}, {255, 150, 0}, {255, 203, 7}, {255, 214, 0}};
 
     public LineFloor(int[][][] b) {
         a = b;
@@ -26,17 +30,33 @@ public class LineFloor {
                 0.2f, 0.0f, -0.2f,
                 0.2f, 0.0f, 0.2f,
         };
+
+        float[] normals = {
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+        };
+
         ByteBuffer vbb = ByteBuffer.allocateDirect(12 * 2 * 4);
         vbb.order(ByteOrder.nativeOrder());
         vertexBuffer = vbb.asFloatBuffer();
         vertexBuffer.put(vertices);
         vertexBuffer.position(0);
+        ByteBuffer vbb2 = ByteBuffer.allocateDirect(12 * 4);
+        vbb2.order(ByteOrder.nativeOrder());
+        normalBuffer = vbb2.asFloatBuffer();
+        normalBuffer.put(normals);
+        normalBuffer.position(0);
     }
 
     public void drawFloor(GL10 gl, int i) {
         //gl.glFrontFace(GL10.GL_CCW);
+        floorIndex = i;
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertexBuffer);
+        gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
         //gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
         linedFloor(gl, i);
@@ -69,64 +89,64 @@ public class LineFloor {
     private void drawCube(GL10 gl, int x, int y, int z) {
 
         if (a[x][y][z] != 0) {
+
             gl.glPushMatrix();
             gl.glTranslatef(0.0f, 0.2f, 0.0f);
-
-            gl.glPushMatrix();
-            //gl.glColor4f(0.5f, 0.5f, 0.4f, 1.0f);
-            gl.glTranslatef(0.0f, -0.4f, 0.0f);
             drawColoredSite(gl, a[x][y][z]);
-            gl.glPopMatrix();
-
-            gl.glPushMatrix();
-            //gl.glColor4f(0.5f, 0.5f, 0.4f, 1.0f);
-            gl.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-            gl.glTranslatef(0.0f, -0.2f, 0.2f);
-            drawColoredSite(gl, a[x][y][z]);
+            gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
             gl.glTranslatef(0.0f, 0.4f, 0.0f);
             drawColoredSite(gl, a[x][y][z]);
             gl.glPopMatrix();
+
+            gl.glPushMatrix();
+            gl.glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+            gl.glTranslatef(0.0f, 0.2f, 0.0f);
+            drawColoredSite(gl, a[x][y][z]);
+            gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+            gl.glTranslatef(0.0f, 0.4f, 0.0f);
             drawColoredSite(gl, a[x][y][z]);
             gl.glPopMatrix();
 
             gl.glPushMatrix();
-            gl.glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
-            gl.glTranslatef(0.0f, 0.0f, 0.0f);
+            gl.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+            gl.glTranslatef(0.0f, 0.2f, 0.0f);
+            drawColoredSite(gl, a[x][y][z]);
+            gl.glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
+            gl.glTranslatef(0.0f, 0.4f, 0.0f);
             drawColoredSite(gl, a[x][y][z]);
             gl.glPopMatrix();
 
-            gl.glPushMatrix();
-            gl.glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
 
-            drawColoredSite(gl, a[x][y][z]);
-            gl.glPopMatrix();
         }
 
+        gl.glDisable(GL10.GL_LIGHTING);
         gl.glPushMatrix();
         gl.glTranslatef(0.0f, 0.25f, 0.0f);
 
         gl.glPushMatrix();
 
         gl.glTranslatef(0.0f, -0.5f, 0.0f);
-        drawSite(gl, 1);
+        drawSite(gl, 1, floorIndex);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
         gl.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
         gl.glTranslatef(0.0f, -0.25f, 0.25f);
-        drawSite(gl, 1);
+        drawSite(gl, 1, floorIndex);
         gl.glTranslatef(0.0f, 0.5f, 0.0f);
-        drawSite(gl, 1);
+        drawSite(gl, 1, floorIndex);
         gl.glPopMatrix();
 
-        drawSite(gl, 1);
+        drawSite(gl, 1, floorIndex);
         gl.glPopMatrix();
+        gl.glEnable(GL10.GL_LIGHTING);
 
     }
 
-    private void drawSite(GL10 gl, int width) {
+    private void drawSite(GL10 gl, int width, int i) {
         gl.glLineWidth(3);
-        gl.glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
+        gl.glColor4f(floorColors[i][0] / 255.0f, floorColors[i][1] / 255.0f,
+                floorColors[i][2] / 255.0f, 1.0f);
         gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 4);
     }
 
@@ -135,6 +155,7 @@ public class LineFloor {
             gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
         else
             gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+        gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
         gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
     }
 
@@ -150,4 +171,5 @@ public class LineFloor {
     public void updateTable(int[][][] b) {
         a = b;
     }
+
 }

@@ -1,28 +1,30 @@
 package com.example.dtictactoe;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.dtictactoe.AI.ArtificialIntelligence;
-import com.example.dtictactoe.R;
 import com.example.dtictactoe.backend.Move;
 import com.example.dtictactoe.frontend.GameView;
 import com.example.dtictactoe.frontend.MyGLRenderer;
-import com.example.dtictactoe.frontend.animations.Animation;
+import com.example.dtictactoe.frontend.RoundedImageView;
 import com.example.dtictactoe.frontend.animations.DismemberCubeAnimation;
 import com.example.dtictactoe.frontend.animations.MakeCubeAnimation;
+import com.example.dtictactoe.frontend.animations.ZoomOutAnimation;
 
 public class GameActivity extends Activity {
 
 	private GameView glView;
     private ProgressBar progressBar;
-    private int localState = 1;
 
     static {
         System.loadLibrary("mcts");
@@ -31,24 +33,29 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+     
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_main);
         glView = (GameView) findViewById(R.id.game_view);
-	    Button cubeView = (Button) findViewById(R.id.cube_view);
+	    ImageButton cubeView = (ImageButton) findViewById(R.id.cube_view);
         cubeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                glView.setState(-localState);
-                localState = -localState;
-                Animation animation;
-                if(localState == MyGLRenderer.STATE_CUBE){
-                    animation = new DismemberCubeAnimation();
-                }else if(localState == MyGLRenderer.STATE_FLOORS){
-                    animation = new MakeCubeAnimation();
+                if(glView.getState() == MyGLRenderer.STATE_CUBE){
+                    glView.pushNewAnim(new DismemberCubeAnimation());
+                } else if (glView.getState() == MyGLRenderer.STATE_FLOORS){
+                    glView.pushNewAnim(new MakeCubeAnimation());
+                } else if (glView.getState() == MyGLRenderer.STATE_ZOOMED_IN) {
+                    glView.pushNewAnim(new ZoomOutAnimation());
+                    glView.pushNewAnim(new MakeCubeAnimation());
                 }
-                glView.pushNewAnimation(animation);
             }
         });
-        Button back = (Button) findViewById(R.id.back_button);
+        /*Button back = (Button) findViewById(R.id.back_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,9 +68,10 @@ public class GameActivity extends Activity {
             public void onClick(View v) {
                 glView.newGame();
             }
-        });
-		TextView textView = (TextView) findViewById(R.id.turn_text);
-		glView.setTurnText(textView);
+        });*/
+		RoundedImageView roundedImageView = (RoundedImageView) findViewById(R.id.turn_view);
+		glView.setTurnText(roundedImageView);
+
 
         progressBar = (ProgressBar) findViewById(R.id.thinking_progress);
 	}

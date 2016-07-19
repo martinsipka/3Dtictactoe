@@ -1,51 +1,86 @@
 package com.example.dtictactoe.frontend.animations;
 
-import android.opengl.Matrix;
-
+import com.example.dtictactoe.backend.AlgebraObjects.Quaternion;
 import com.example.dtictactoe.frontend.MyGLRenderer;
 
 /**
  * Created by martin on 23.4.16.
  */
 public class DismemberCubeAnimation implements Animation {
+
+    public static final int ROTATION_STEPS = 60;
+    public static final int DISMEM_STEPS = 100;
+    public static final int DOWN_STEPS = 40;
+
+    private boolean rotate = true;
+    private boolean dismem = false;
+    private int step = 0;
+    private Quaternion identity = new Quaternion();
+    private Quaternion startPosition;
+    private NiceInterpolator rotateInterpolator;
+    private NiceInterpolator dismemInterpolator;
+    private NiceInterpolator[] downInterpolators = new NiceInterpolator[4];
+
+    public DismemberCubeAnimation(){
+        rotateInterpolator = new NiceInterpolator(0, 1);
+        dismemInterpolator = new NiceInterpolator(0, 1.15f);
+        for(int i = 0; i < 4; i++){
+            downInterpolators[i] = new NiceInterpolator(-0.75f + 0.5f*i, -3.0f);
+        }
+    }
+
     @Override
     public boolean perform(MyGLRenderer renderer) {
         int sign = 1;
-        if (renderer.rotate) {
-            Matrix.setIdentityM(renderer.mAccumulatedRotation, 0);
-            //rotateAnimation();
-            renderer.rotate = false;
+
+        if(startPosition == null){
+            startPosition = new Quaternion(renderer.currentRotation);
         }
-        if (renderer.dismem && !renderer.rotate) {
+
+        if (rotate) {
+            step++;
+            //renderer.currentRotation = Quaternion.slerp((float) step/STEPS, startPosition, identity);
+            if(renderer.currentRotation.equals(identity)){
+                step = ROTATION_STEPS;
+            }
+            renderer.currentRotation = new Quaternion(startPosition).slerp(identity,
+                    rotateInterpolator.interpolate((float) step/ROTATION_STEPS));
+
+            if(step == ROTATION_STEPS) {
+                dismem = true;
+                rotate = false;
+                step = 0;
+                renderer.currentRotation = new Quaternion();
+            }
+        } else if (dismem) {
             for (int i = 0; i < 4; i++) {
+                step++;
+                float currentValue = dismemInterpolator.interpolate((float) step/DISMEM_STEPS);
                 if (i % 2 == 1)
                     sign = -1 * sign;
-                renderer.floorCords[i][0] += sign * MyGLRenderer.animSpeed;
+                renderer.floorCords[i][0] = sign * currentValue;
                 if (i % 3 == 0)
                     sign = -sign;
-                renderer.floorCords[i][1] += sign * MyGLRenderer.animSpeed;
-                sign = renderer.state;
+                renderer.floorCords[i][1] = sign * currentValue;
+                sign = 1;
 
-                if (renderer.floorCords[3][1] > 1.15f) {
+                if (step == DISMEM_STEPS) {
 
-                    renderer.dismem = false;
-
-
+                    dismem = false;
+                    step = 0;
                 }
             }
-        } else if (!renderer.rotate) {
-
+        } else  {
+            step++;
             for (int j = 0; j < 4; j++) {
-                renderer.floorCords[j][2] -= (j + 3.0f) * MyGLRenderer.animSpeed;
-                if (renderer.floorCords[j][2] < -3.0f) {
-                    for(int p = 0; p < 4; p++){
-                        renderer.floorCords[p][2] = -3.0f;
-                    }
-                    renderer.state = MyGLRenderer.STATE_FLOORS;
-                    return true;
-                }
+                renderer.floorCords[j][2] = downInterpolators[j].interpolate((float) step/DOWN_STEPS);
+            }
+            if (step == DOWN_STEPS) {
+                renderer.state = MyGLRenderer.STATE_FLOORS;
+                return true;
             }
         }
         return false;
     }
+
 }
