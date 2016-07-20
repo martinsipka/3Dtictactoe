@@ -608,7 +608,7 @@ int _search(int board[4][4][4], int stm, int playouts, float _bonus)
 
 
 
-jint Java_com_example_dtictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
+jint Java_sk_martin_tictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
         jobjectArray field){
 
         int board[4][4][4];

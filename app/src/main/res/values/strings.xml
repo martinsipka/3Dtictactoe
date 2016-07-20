@@ -9,6 +9,8 @@
     <string name="play_vs">Play versus</string>
     <string name="play_bot">Play with bot</string>
     <string name="quit">Quit</string>
+    <string name="win">Win!</string>
+    <string name="add_id">ca-app-pub-3797519520523288/1154535052</string>
 
 
 </resources>

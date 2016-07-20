@@ -6,8 +6,8 @@ model {
         buildToolsVersion = "20.0.0"
 
         defaultConfig.with {
-            applicationId = "com.example.dtictactoe"
-            minSdkVersion.apiLevel = 8
+            applicationId = "sk.martin.tictactoe"
+            minSdkVersion.apiLevel = 9
             targetSdkVersion.apiLevel = 23
 
 
@@ -30,4 +30,8 @@ model {
 
     dependencies {
         compile 'com.android.support:support-v4:20.0.0'
+        compile 'com.google.firebase:firebase-ads:9.2.1'
+
     }
+
+apply plugin: 'com.google.gms.google-services'
