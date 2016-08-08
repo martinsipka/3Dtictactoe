@@ -1,2 +1,0 @@
-set solib-search-path /home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/binaries/debug/lib/armeabi
-directory /home/martin/Android/Sdk/ndk-bundle/platforms/android-23/arch-arm/usr/include /home/martin/AndroidProjects/3dtictactoe/app/src/mcts/cpp /home/martin/Android/Sdk/ndk-bundle/sources/cxx-stl/system/include /home/martin/AndroidProjects/3dtictactoe/app/src/debug/jni /home/martin/AndroidProjects/3dtictactoe/app/src/mcts/c /home/martin/AndroidProjects/3dtictactoe/app/src/main/jni

@@ -4,6 +4,13 @@
     android:layout_height="match_parent">
 
     <Button
+        android:id="@+id/tutorial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/play_vs"
+        android:onClick="tutorial"/>
+
+    <Button
         android:id="@+id/play_vs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

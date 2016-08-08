@@ -30,6 +30,7 @@ public class LineFloor {
     private int floorIndex;
     public static final int[][] floorColors = {{255, 86, 34}, {255, 150, 0}, {255, 203, 7}, {255, 214, 0}};
 
+
     public LineFloor(int[][][] b, Move lastMove) {
         a = b;
         this.lastMove = lastMove;
@@ -172,6 +173,20 @@ public class LineFloor {
     }
 
     private void drawColoredSite(GL10 gl, int color, float pulse) {
+
+        float[] normals = {
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+        };
+
+        ByteBuffer vbb2 = ByteBuffer.allocateDirect(12 * 4);
+        vbb2.order(ByteOrder.nativeOrder());
+        FloatBuffer normalBuffer = vbb2.asFloatBuffer();
+        normalBuffer.put(normals);
+        normalBuffer.position(0);
+
         if (color == RED_CUBE) {
             gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
             gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);

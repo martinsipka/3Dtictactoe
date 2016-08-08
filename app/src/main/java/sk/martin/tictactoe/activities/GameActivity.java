@@ -1,17 +1,22 @@
 package sk.martin.tictactoe.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -29,10 +34,19 @@ import sk.martin.tictactoe.frontend.MyGLRenderer;
 
 public class GameActivity extends Activity {
 
-	private GameView glView;
+    private static final long DELAY = 2000L;
+
+	GameView glView;
     private ProgressBar progressBar;
     private RoundedImageView roundedImageView;
+    protected ImageButton cubeView;
     private TextView winText;
+    private Button rematch;
+
+    private boolean recentlyBackPressed = false;
+    private boolean enableAdds = true;
+    private Handler exitHandler = new Handler();
+
 
     static {
         System.loadLibrary("mcts");
@@ -49,7 +63,7 @@ public class GameActivity extends Activity {
 
         setContentView(R.layout.game_activity);
         glView = (GameView) findViewById(R.id.game_view);
-	    ImageButton cubeView = (ImageButton) findViewById(R.id.cube_view);
+	    cubeView = (ImageButton) findViewById(R.id.cube_view);
         cubeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,15 +96,16 @@ public class GameActivity extends Activity {
 
         winText = (TextView) findViewById(R.id.winText);
 
+        rematch = (Button) findViewById(R.id.rematch);
+        rematch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseSide();
+            }
+        });
 
         progressBar = (ProgressBar) findViewById(R.id.thinking_progress);
-        MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.add_id));
-        AdView mAdView = (AdView) findViewById(R.id.ad_view);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
-                .addTestDevice("67AB4AF8172D70E1DBAD9E77D4CB00D5")
-                .build();
-        mAdView.loadAd(adRequest);
+
 
 
     }
@@ -105,7 +120,17 @@ public class GameActivity extends Activity {
     public void nextMove(){}
 
     public void setGameActivity(GameActivity gameActivity){
-        glView.setGameActivity(gameActivity);
+        enableAdds  = !(gameActivity instanceof TutorialActivity);
+        if(enableAdds) {
+            MobileAds.initialize(getApplicationContext(), getResources().getString(R.string.add_id));
+            AdView mAdView = (AdView) findViewById(R.id.ad_view);
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+                    .addTestDevice("67AB4AF8172D70E1DBAD9E77D4CB00D5")
+                    .build();
+            mAdView.loadAd(adRequest);
+        }
+        glView.setGameActivity(gameActivity, enableAdds);
     }
 
     public int[][][] getPlayBoard(){
@@ -137,7 +162,7 @@ public class GameActivity extends Activity {
     public void setWinner(int winner){
         TranslateAnimation anim = new TranslateAnimation( 0, -100 , 0, 0 );
         anim.setDuration(1000);
-        anim.setFillAfter( true );
+        anim.setFillAfter(true);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         roundedImageView.startAnimation(anim);
         winText.setVisibility(View.VISIBLE);
@@ -147,6 +172,48 @@ public class GameActivity extends Activity {
         } else if(winner == LineFloor.BLUE_WIN){
             winText.setTextColor(Color.BLUE);
             roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
+        }
+        rematch.setVisibility(View.VISIBLE);
+    }
+
+    public void chooseSide(){
+        rematch();
+    }
+
+    public void rematch(){
+
+        TranslateAnimation anim = new TranslateAnimation( -100, 0 , 0, 0 );
+        anim.setDuration(1000);
+        anim.setFillAfter(true);
+        anim.setInterpolator(new AccelerateDecelerateInterpolator());
+        roundedImageView.startAnimation(anim);
+        winText.setVisibility(View.INVISIBLE);
+        rematch.setVisibility(View.INVISIBLE);
+        glView.newGame();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Runnable mExitRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                recentlyBackPressed=false;
+            }
+        };
+
+        if (recentlyBackPressed) {
+            exitHandler.removeCallbacks(mExitRunnable);
+            exitHandler = null;
+            super.onBackPressed();
+        }
+        else
+        {
+            recentlyBackPressed = true;
+            Toast.makeText(this, "press again to exit", Toast.LENGTH_SHORT).show();
+            exitHandler.postDelayed(mExitRunnable, DELAY);
         }
     }
 

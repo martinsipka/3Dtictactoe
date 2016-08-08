@@ -16,11 +16,11 @@ import sk.martin.tictactoe.frontend.animations.ZoomOutAnimation;
 
 public class GameView extends GLSurfaceView {
 
-    private final float TOUCH_SCALE_FACTOR = 180.0f / 320.0f;
+    private final float TOUCH_SCALE_FACTOR = 90.0f / 320.0f;
     public static final String TAG = "GAMEVIEW TAG";
 
     private GameActivity gameActivity;
-    private MyGLRenderer renderer;
+    public MyGLRenderer renderer;
     private float previousX;
     private float previousY;
     private float width;
@@ -32,6 +32,7 @@ public class GameView extends GLSurfaceView {
     private RoundedImageView roundedImageView;
     private int turn = MyGLRenderer.TURN_RED;
     private boolean enableTouch = true;
+    private boolean enableAdds = true;
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -208,6 +209,7 @@ public class GameView extends GLSurfaceView {
     }
 
     public void newGame() {
+        roundedImageView.setTurn(MyGLRenderer.TURN_RED);
         renderer.newGame();
     }
 
@@ -228,8 +230,9 @@ public class GameView extends GLSurfaceView {
         roundedImageView.setTurn(MyGLRenderer.TURN_RED);
     }
 
-    public void setGameActivity(GameActivity gameActivity) {
+    public void setGameActivity(GameActivity gameActivity, boolean enableAdds) {
         this.gameActivity = gameActivity;
+        this.enableAdds = enableAdds;
     }
 
     private void switchTurn() {

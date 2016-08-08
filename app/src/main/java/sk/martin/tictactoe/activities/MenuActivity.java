@@ -18,6 +18,11 @@ public class MenuActivity extends Activity {
         setContentView(R.layout.main_menu);
     }
 
+    public void tutorial(View v){
+        Intent intent = new Intent(getBaseContext(), TutorialActivity.class);
+        startActivity(intent);
+    }
+
     public void playVersus(View v){
         Intent intent = new Intent(getBaseContext(), VersusModeActivity.class);
         startActivity(intent);

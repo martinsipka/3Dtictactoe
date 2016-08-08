@@ -20,7 +20,7 @@ public class AsyncAILoader extends AsyncTask<int[][][], Object, Integer> {
     protected Integer doInBackground(int[][][]... params) {
         ArtificialIntelligence ai = new ArtificialIntelligence();
         System.out.println(params[0][0][0][0]);
-        int newTurn  = ai.getPosition(params[0]);
+        int newTurn  = ai.getPosition(params[0], gameActivity.getTurn(), gameActivity.getDifficulty());
         return newTurn;
     }
 

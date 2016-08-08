@@ -609,7 +609,7 @@ int _search(int board[4][4][4], int stm, int playouts, float _bonus)
 
 
 jint Java_sk_martin_tictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env, jobject thiz,
-        jobjectArray field){
+        jobjectArray field, jint jplayer, jint jplayouts){
 
         int board[4][4][4];
         for( int i = 0; i < 4; i++){
@@ -622,7 +622,9 @@ jint Java_sk_martin_tictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env,
                 }
             }
         }
-        return _search(board, 5, 30000, 0.05f);;//_search();
+        int player = jplayer;
+        int playouts = jplayouts;
+        return _search(board, player, playouts, 0.05f);;//_search();
     }
 
 }

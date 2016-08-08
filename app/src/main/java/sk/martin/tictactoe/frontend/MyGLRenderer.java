@@ -19,6 +19,7 @@ import sk.martin.tictactoe.frontend.animations.ZoomOutAnimation;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.channels.InterruptibleChannel;
 import java.util.EmptyStackException;
 import java.util.Queue;
 import java.util.Stack;
@@ -35,8 +36,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final float lighPosition[] = {5.0f, 30.0f, 10.0f, 0.0f};
 
-    Context context;
-    LineFloor lineFloor;
+    private Context context;
+    private LineFloor lineFloor;
 
     private int[][][] playBoard = new int[4][4][4];
     private Move lastMove = new Move();
@@ -45,12 +46,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "RENDERTHREAD TAG";
 
-    // Rotational angle and speed (NEW)
     float mDeltaX = 0.0f;
     float mDeltaY = 0.0f;
     public float[][] floorCords = new float[4][3];
     private long time = 0;
-    int turn = 1;
+    private int turn = TURN_RED;
     public boolean wasRotation = true;
     public boolean gameOver = false;
     public int state = STATE_CUBE;
@@ -59,13 +59,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public float cPosX;
     public float cPosY;
     public float cPosZ;
-    ScoreCheck sc;
+    private ScoreCheck sc;
     private FloatBuffer lightPositionBuffer;
 
     //Rotation matrices
     public Quaternion currentRotation = new Quaternion();
 
-    Queue<Animation> animations;
+    public Queue<Animation> animations;
     private GameView viewReference;
 
     public MyGLRenderer(Context context, GameView viewReference) {
@@ -167,9 +167,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPositionBuffer);
 
         gl.glEnable(GL10.GL_LIGHT0);
-        float ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f};
-        float diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
-        float specularLight[] = {0.6f, 0.6f, 0.6f, 1.0f};
+        float ambientLight[] = {0.7f, 0.7f, 0.7f, 1.0f};
+        float diffuseLight[] = {0.99f, 0.99f, 0.99f, 1.0f};
+        float specularLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
 
         ByteBuffer vbba = ByteBuffer.allocateDirect(4 * 4);
         vbba.order(ByteOrder.nativeOrder());
@@ -244,6 +244,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public boolean markSquare(int xCoor, int yCoor, int zCoor) {
 
+        Log.d(TAG, Integer.toString(playBoard[xCoor][yCoor][zCoor]));
         if (playBoard[xCoor][yCoor][zCoor] != 0)
             return false;
 
@@ -269,10 +270,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             winner = LineFloor.BLUE_WIN;
             endGame();
         }
-        if (turn == 1) {
-            turn = 5;
+        if (turn == TURN_RED) {
+            turn = TURN_BLUE;
         } else {
-            turn = 1;
+            turn = TURN_RED;
         }
 
         viewReference.requestRender();
@@ -315,6 +316,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void newGame() {
         playBoard = new int[4][4][4];
+        lastMove = new Move();
+        turn = TURN_RED;
+        gameOver = false;
         sc.updateTable(playBoard);
         lineFloor.updateTable(playBoard);
         wasRotation = true;
@@ -323,5 +327,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public int[][][] getPlayBoard() {
         return playBoard;
+    }
+
+    public void setPlayBoard(int[][][] playBoard){
+        this.playBoard = playBoard;
+        lineFloor.updateTable(playBoard);
+        sc.updateTable(playBoard);
     }
 }

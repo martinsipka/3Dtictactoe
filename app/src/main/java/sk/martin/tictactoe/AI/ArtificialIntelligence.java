@@ -7,6 +7,6 @@ public class ArtificialIntelligence {
 
 
 
-    public native int getPosition(int[][][] a);//int[][][] board, int stm, int playouts);
+    public native int getPosition(int[][][] a, int jplayer, int jplayouts);//int[][][] board, int stm, int playouts);
 
 }
