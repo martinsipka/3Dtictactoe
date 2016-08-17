@@ -22,6 +22,7 @@ public class LineFloor {
     public static final int HIGHLIGHT = 10000;
     public static final int RED_HIGHLIGHT = RED_CUBE + HIGHLIGHT;
     public static final int BLUE_HIGHLIGHT = BLUE_CUBE + HIGHLIGHT;
+    public static final int TUTORIAL_HIGHLIGHT = 6666;
 
 
     private FloatBuffer vertexBuffer, normalBuffer;
@@ -217,6 +218,10 @@ public class LineFloor {
             gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         } else if(color == BLUE_HIGHLIGHT){
             gl.glColor4f(0.0f, 0.1f, 1.0f, 1.0f);
+            gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
+            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+        } else if(color == TUTORIAL_HIGHLIGHT){
+            gl.glColor4f(0.0f, 0.2f, 0.2f, 0.2f);
             gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
             gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         }

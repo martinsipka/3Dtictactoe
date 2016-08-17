@@ -1,19 +1,28 @@
 package sk.martin.tictactoe.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +51,7 @@ public class GameActivity extends Activity {
     protected ImageButton cubeView;
     private TextView winText;
     private Button rematch;
+    private LinearLayout shade;
 
     private boolean recentlyBackPressed = false;
     private boolean enableAdds = true;
@@ -77,6 +87,11 @@ public class GameActivity extends Activity {
                 }
             }
         });
+
+        shade = (LinearLayout) findViewById(R.id.shade);
+        shade.setVisibility(View.VISIBLE);
+        shade.setAlpha(0.0f);
+
         /*Button back = (Button) findViewById(R.id.back_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +132,9 @@ public class GameActivity extends Activity {
 		return true;
 	}
 
-    public void nextMove(){}
+    public void nextMove(){
+        Log.d("tag", "next move");
+    }
 
     public void setGameActivity(GameActivity gameActivity){
         enableAdds  = !(gameActivity instanceof TutorialActivity);
@@ -174,11 +191,14 @@ public class GameActivity extends Activity {
             roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
         }
         rematch.setVisibility(View.VISIBLE);
+        notifyWin();
     }
 
     public void chooseSide(){
         rematch();
     }
+
+    public void notifyWin(){}
 
     public void rematch(){
 
@@ -216,5 +236,24 @@ public class GameActivity extends Activity {
             exitHandler.postDelayed(mExitRunnable, DELAY);
         }
     }
+
+    void fadeOut(final int transitionID){
+        shade.animate().alpha(1f).setDuration(500)
+                .setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                fadeIn();
+                transition(transitionID);
+            }
+        });
+    }
+
+    void fadeIn(){
+        shade.animate().alpha(0f).setDuration(500)
+                .setInterpolator(new DecelerateInterpolator());
+    }
+
+    void transition(int transitionID){}
 
 }

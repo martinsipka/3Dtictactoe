@@ -525,14 +525,14 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020034;
     }
     public static final class id {
-        public static final int action_settings=0x7f080038;
+        public static final int action_settings=0x7f08003a;
         public static final int ad_view=0x7f080024;
         public static final int adjust_height=0x7f08000f;
         public static final int adjust_width=0x7f08000e;
         public static final int auto=0x7f08001f;
         public static final int contact=0x7f08000b;
         public static final int container=0x7f080023;
-        public static final int content_box=0x7f080034;
+        public static final int content_box=0x7f080036;
         public static final int cube_view=0x7f08002b;
         public static final int dark=0x7f08001d;
         public static final int demote_common_words=0x7f080015;
@@ -541,6 +541,7 @@ containing a value of this type.
         public static final int first=0x7f080026;
         public static final int fourth=0x7f080029;
         public static final int game_view=0x7f08002a;
+        public static final int got_it=0x7f080030;
         public static final int html=0x7f080011;
         public static final int icon_only=0x7f08001c;
         public static final int icon_uri=0x7f080002;
@@ -559,12 +560,13 @@ containing a value of this type.
         public static final int omnibox_title_section=0x7f080018;
         public static final int omnibox_url_section=0x7f080017;
         public static final int plain=0x7f080010;
-        public static final int play_bot=0x7f080032;
-        public static final int play_vs=0x7f080031;
-        public static final int quit=0x7f080033;
+        public static final int play_bot=0x7f080034;
+        public static final int play_vs=0x7f080033;
+        public static final int quit=0x7f080035;
         public static final int rematch=0x7f08002f;
         public static final int rfc822=0x7f080012;
         public static final int second=0x7f080027;
+        public static final int shade=0x7f080031;
         public static final int showcase_button=0x7f080020;
         public static final int showcase_sub_text=0x7f080021;
         public static final int showcase_title_text=0x7f080022;
@@ -575,10 +577,10 @@ containing a value of this type.
         public static final int thinking_progress=0x7f08002d;
         public static final int third=0x7f080028;
         public static final int turn_view=0x7f08002c;
-        public static final int tutorial=0x7f080030;
-        public static final int tv_content=0x7f080036;
-        public static final int tv_dismiss=0x7f080037;
-        public static final int tv_title=0x7f080035;
+        public static final int tutorial=0x7f080032;
+        public static final int tv_content=0x7f080038;
+        public static final int tv_dismiss=0x7f080039;
+        public static final int tv_title=0x7f080037;
         public static final int url=0x7f080013;
         public static final int wide=0x7f08001b;
         public static final int winText=0x7f08002e;
@@ -601,6 +603,7 @@ containing a value of this type.
         public static final int action_settings=0x7f040025;
         public static final int add_id=0x7f040026;
         public static final int app_name=0x7f040027;
+        public static final int assisted_win=0x7f040028;
         public static final int common_google_play_services_api_unavailable_text=0x7f040001;
         public static final int common_google_play_services_enable_button=0x7f040002;
         public static final int common_google_play_services_enable_text=0x7f040003;
@@ -634,16 +637,31 @@ containing a value of this type.
         public static final int common_signin_button_text_long=0x7f04001f;
         public static final int create_calendar_message=0x7f040020;
         public static final int create_calendar_title=0x7f040021;
+        public static final int cube_button=0x7f040029;
         public static final int decline=0x7f040022;
-        public static final int hello_world=0x7f040028;
-        public static final int ok=0x7f040029;
-        public static final int play_bot=0x7f04002a;
-        public static final int play_vs=0x7f04002b;
-        public static final int quit=0x7f04002c;
-        public static final int rematch=0x7f04002d;
+        public static final int first_floor=0x7f04002a;
+        public static final int fourth_floor=0x7f04002b;
+        public static final int got_it=0x7f04002c;
+        public static final int hello_world=0x7f04002d;
+        public static final int intro=0x7f04002e;
+        public static final int next=0x7f04002f;
+        public static final int ok=0x7f04003e;
+        public static final int play_bot=0x7f040030;
+        public static final int play_vs=0x7f040031;
+        public static final int quit=0x7f040032;
+        public static final int rematch=0x7f040033;
+        public static final int second_floor=0x7f040034;
+        public static final int second_win=0x7f040035;
         public static final int store_picture_message=0x7f040023;
         public static final int store_picture_title=0x7f040024;
-        public static final int win=0x7f04002e;
+        public static final int third_floor=0x7f040036;
+        public static final int third_win=0x7f040037;
+        public static final int try_again=0x7f040038;
+        public static final int tutorial_end=0x7f040039;
+        public static final int win=0x7f04003a;
+        public static final int win_one=0x7f04003b;
+        public static final int win_three=0x7f04003c;
+        public static final int win_two=0x7f04003d;
     }
     public static final class style {
         /**  API 11 theme customizations can go here. 

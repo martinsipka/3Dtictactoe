@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 import sk.martin.tictactoe.activities.GameActivity;
+import sk.martin.tictactoe.activities.TutorialActivity;
 import sk.martin.tictactoe.backend.Move;
 import sk.martin.tictactoe.frontend.animations.Animation;
 import sk.martin.tictactoe.frontend.animations.ZoomInAnimation;
@@ -19,7 +20,7 @@ public class GameView extends GLSurfaceView {
     private final float TOUCH_SCALE_FACTOR = 90.0f / 320.0f;
     public static final String TAG = "GAMEVIEW TAG";
 
-    private GameActivity gameActivity;
+    public GameActivity gameActivity;
     public MyGLRenderer renderer;
     private float previousX;
     private float previousY;
@@ -162,9 +163,13 @@ public class GameView extends GLSurfaceView {
 
                             if (renderer.markAsPlayer(xCoor, yCoor)) {
                                 if(!renderer.gameOver) {
-                                    switchTurn();
+                                    if(!(gameActivity instanceof TutorialActivity)) {
+                                        switchTurn();
+                                    }
                                     gameActivity.nextMove();
                                 }
+                            } else {
+                                Log.d(TAG, "false on touch");
                             }
                         }
 

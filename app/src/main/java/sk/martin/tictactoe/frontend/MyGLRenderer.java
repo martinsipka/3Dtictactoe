@@ -7,9 +7,11 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import sk.martin.tictactoe.AI.ScoreCheck;
+import sk.martin.tictactoe.activities.TutorialActivity;
 import sk.martin.tictactoe.backend.AlgebraObjects.Quaternion;
 import sk.martin.tictactoe.frontend.animations.Animation;
 import sk.martin.tictactoe.backend.Move;
@@ -19,7 +21,6 @@ import sk.martin.tictactoe.frontend.animations.ZoomOutAnimation;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.channels.InterruptibleChannel;
 import java.util.EmptyStackException;
 import java.util.Queue;
 import java.util.Stack;
@@ -50,7 +51,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     float mDeltaY = 0.0f;
     public float[][] floorCords = new float[4][3];
     private long time = 0;
-    private int turn = TURN_RED;
+    public int turn = TURN_RED;
     public boolean wasRotation = true;
     public boolean gameOver = false;
     public int state = STATE_CUBE;
@@ -245,8 +246,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public boolean markSquare(int xCoor, int yCoor, int zCoor) {
 
         Log.d(TAG, Integer.toString(playBoard[xCoor][yCoor][zCoor]));
-        if (playBoard[xCoor][yCoor][zCoor] != 0)
+        if (playBoard[xCoor][yCoor][zCoor] != 0 &&
+                playBoard[xCoor][yCoor][zCoor] != LineFloor.TUTORIAL_HIGHLIGHT) {
+            Log.d(TAG, "not empty");
             return false;
+        }
 
         if(state == STATE_ZOOMED_IN) {
             state = MyGLRenderer.STATE_FLOORS;
@@ -308,9 +312,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             playBoard[winningCombination[i][0]][winningCombination[i][1]][winningCombination[i][2]]
                     = winner;
         }
-        viewReference.setWinner(winner);
         gameOver = true;
-        animations.add(new MakeCubeAnimation());
+        viewReference.setWinner(winner);
+        if(!(viewReference.gameActivity instanceof TutorialActivity)) {
+            animations.add(new MakeCubeAnimation());
+        }
         lastMove.setX(-1);
     }
 
@@ -334,4 +340,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         lineFloor.updateTable(playBoard);
         sc.updateTable(playBoard);
     }
+
+
 }

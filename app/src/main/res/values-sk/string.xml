@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">3dtictactoe</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <!-- main menu constants -->
+    <string name="play_vs">Play versus</string>
+    <string name="play_bot">Play with bot</string>
+    <string name="quit">Quit</string>
+    <string name="win">Win!</string>
+    <string name="add_id">ca-app-pub-3797519520523288/1154535052</string>
+    <string name="rematch">Odveta!</string>
+
+    <!-- tutorial strings -->
+    <string name="got_it">Jasne!</string>
+    <string name="intro">
+        Ticube je hra podobná piškvorkam, len v troch dimenziách. Pred vami je hracia plocha
+        prezrite si ju a otočte prstom.</string>
+    <string name="win_one">Vyhráte ak budete mat štyri kocky na jednej priamke.</string>
+    <string name="win_two">Ďalším spôsobom ako vyhrať je naprieč poschodiami.</string>
+    <string name="win_three">Inou možnosťou je vyhrať v uhlopriečke kocky. Pozrite si pozorne tento
+        scenár.</string>
+    <string name="cube_button">Použite toto tlačidlo na zmenu pohladu na plochu. V pohlade na kocku
+        si ľahko prezriete plochu. V pohlade na poschodia možno vykonávať ťahy."</string>
+    <string name="first_floor">Prvé poschodie kocky.</string>
+    <string name="second_floor">Druhé poschodie kocky.</string>
+    <string name="third_floor">Tretie poschodie kocky.</string>
+    <string name="fourth_floor">Štvrté poschodie kocky.</string>
+    <string name="assisted_win">Ťahom na zvýraznené políčko vyhrajte hru. Na ťahu je červený</string>
+    <string name="second_win">Skúste nájsť výťazný ťah tentoraz sami.</string>
+    <string name="third_win">Skvele. Teraz to skúste znova. Nezabudnite, že možno vyhrať aj po
+        uhlopriečke</string>
+    <string name="tutorial_end">Pekne. Ste pripravený hrať.</string>
+    <string name="next">Ďalej</string>
+    <string name="try_again">Tento ťah hru nevyhrá. Skúste znova.</string>
+
+
+</resources>

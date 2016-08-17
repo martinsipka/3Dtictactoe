@@ -7,7 +7,7 @@ model {
 
         defaultConfig.with {
             applicationId = "sk.martin.tictactoe"
-            minSdkVersion.apiLevel = 11
+            minSdkVersion.apiLevel = 12
             targetSdkVersion.apiLevel = 23
 
 
