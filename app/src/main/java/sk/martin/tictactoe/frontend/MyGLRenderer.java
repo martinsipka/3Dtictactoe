@@ -6,8 +6,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
-import android.util.Log;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import sk.martin.tictactoe.AI.ScoreCheck;
@@ -16,6 +14,7 @@ import sk.martin.tictactoe.backend.AlgebraObjects.Quaternion;
 import sk.martin.tictactoe.frontend.animations.Animation;
 import sk.martin.tictactoe.backend.Move;
 import sk.martin.tictactoe.frontend.animations.MakeCubeAnimation;
+import sk.martin.tictactoe.frontend.animations.RotateAnimation;
 import sk.martin.tictactoe.frontend.animations.ZoomOutAnimation;
 
 import java.nio.ByteBuffer;
@@ -47,8 +46,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "RENDERTHREAD TAG";
 
-    float mDeltaX = 0.0f;
-    float mDeltaY = 0.0f;
+    public float mDeltaX = 0.0f;
+    public float mDeltaY = 0.0f;
     public float[][] floorCords = new float[4][3];
     private long time = 0;
     public int turn = TURN_RED;
@@ -67,7 +66,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public Quaternion currentRotation = new Quaternion();
 
     public Queue<Animation> animations;
-    private GameView viewReference;
+    public GameView viewReference;
 
     public MyGLRenderer(Context context, GameView viewReference) {
         this.context = context;
@@ -80,6 +79,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
+
 
 
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
@@ -137,7 +137,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Setup perspective projection, with aspect ratio matches viewport
         gl.glMatrixMode(GL10.GL_PROJECTION); // Select projection matrix
         gl.glLoadIdentity(); // Reset projection matrix
-        Log.d("aspect", Float.toString(aspect));
         float yangle = 25 / aspect;
         // Use perspective projection
         GLU.gluPerspective(gl, yangle, aspect, 0.1f, 100.f);
@@ -245,10 +244,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public boolean markSquare(int xCoor, int yCoor, int zCoor) {
 
-        Log.d(TAG, Integer.toString(playBoard[xCoor][yCoor][zCoor]));
         if (playBoard[xCoor][yCoor][zCoor] != 0 &&
                 playBoard[xCoor][yCoor][zCoor] != LineFloor.TUTORIAL_HIGHLIGHT) {
-            Log.d(TAG, "not empty");
             return false;
         }
 
@@ -264,7 +261,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         lastMove.setZ(zCoor);
 
         int checked = sc.check(xCoor, yCoor, zCoor);
-        Log.d(TAG, Integer.toString(checked));
         if (checked == 1) {
             //Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
             winner = LineFloor.RED_WIN;
@@ -286,7 +282,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public void back() {
-        Log.d("backing", "up");
         try {
             Move move = history.pop();
             int x = move.getX();
@@ -341,5 +336,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         sc.updateTable(playBoard);
     }
 
+    public void startRotation(){
+
+        animations.add(new RotateAnimation());
+        viewReference.requestRender();
+
+    }
 
 }

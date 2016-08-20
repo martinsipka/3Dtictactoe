@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">3dtictactoe</string>
+    <string name="app_name">TiCube</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 
@@ -12,6 +12,11 @@
     <string name="win">Win!</string>
     <string name="add_id">ca-app-pub-3797519520523288/1154535052</string>
     <string name="rematch">Rematch!</string>
+    <string name="easy">easy</string>
+    <string name="medium">medium</string>
+    <string name="hard">hard</string>
+    <string name="very_hard">very hard</string>
+
 
 
 </resources>

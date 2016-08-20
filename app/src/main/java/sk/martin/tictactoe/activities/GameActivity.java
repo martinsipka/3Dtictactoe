@@ -3,11 +3,10 @@ package sk.martin.tictactoe.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -15,10 +14,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -41,7 +37,7 @@ import sk.martin.tictactoe.frontend.animations.MakeCubeAnimation;
 import sk.martin.tictactoe.frontend.animations.ZoomOutAnimation;
 import sk.martin.tictactoe.frontend.MyGLRenderer;
 
-public class GameActivity extends Activity {
+public class GameActivity extends AppCompatActivity {
 
     private static final long DELAY = 2000L;
 
@@ -238,6 +234,7 @@ public class GameActivity extends Activity {
     }
 
     void fadeOut(final int transitionID){
+        Log.d("aci", "fadeOut method");
         shade.animate().alpha(1f).setDuration(500)
                 .setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -250,8 +247,12 @@ public class GameActivity extends Activity {
     }
 
     void fadeIn(){
-        shade.animate().alpha(0f).setDuration(500)
-                .setInterpolator(new DecelerateInterpolator());
+        shade.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+            }
+        }).setInterpolator(new DecelerateInterpolator());
     }
 
     void transition(int transitionID){}

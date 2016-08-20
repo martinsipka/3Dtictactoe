@@ -17,4 +17,15 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="Material" parent="Theme.AppCompat.NoActionBar">
+
+    </style>
+
+    <style name="Material.Dark" parent="Theme.AppCompat.Light"/>
+
+    <style name="MyButton" parent="Theme.AppCompat">
+        <item name="colorControlHighlight">@color/material_blue_highlight</item>
+        <item name="colorButtonNormal">@color/material_light_blue</item>
+    </style>
+
 </resources>

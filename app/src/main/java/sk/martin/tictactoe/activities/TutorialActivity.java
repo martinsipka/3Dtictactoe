@@ -2,15 +2,8 @@ package sk.martin.tictactoe.activities;
 
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import java.util.Stack;
 
@@ -26,11 +19,11 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
  */
 public class TutorialActivity extends GameActivity {
 
-    public static final String SHOWCASE_ID = "tutorial";
     public static final String TAG = "tutorial tag";
 
     private int[][][] tutorialBoard = new int[4][4][4];
     private int testCase = 1;
+    private Button gotIt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +34,7 @@ public class TutorialActivity extends GameActivity {
 
         glView.renderer.setPlayBoard(tutorialBoard);
 
-
+        gotIt = (Button) findViewById(R.id.got_it);
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -51,6 +44,17 @@ public class TutorialActivity extends GameActivity {
                 .renderOverNavigationBar()
                 .setShapePadding(0)
                 .withoutShape()
+                .setListener(new IShowcaseListener() {
+                    @Override
+                    public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
+
+                    }
+
+                    @Override
+                    public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                        gotIt.setVisibility(View.VISIBLE);
+                    }
+                })
                 .setDismissText(getResources().getString(R.string.got_it))
                 .setContentText(getResources().getString(R.string.intro)).build();
 
@@ -62,8 +66,7 @@ public class TutorialActivity extends GameActivity {
                     @Override
                     public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
                         glView.renderer.gameOver = true;
-
-
+                        gotIt.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -81,7 +84,7 @@ public class TutorialActivity extends GameActivity {
                 .setListener(new IShowcaseListener() {
                     @Override
                     public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-
+                        gotIt.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
@@ -99,12 +102,13 @@ public class TutorialActivity extends GameActivity {
                 .setListener(new IShowcaseListener() {
                     @Override
                     public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
-
+                        gotIt.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
                     public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
                         fadeOut(3);
+
                     }
                 })
                 .setShapePadding(0)
@@ -155,7 +159,6 @@ public class TutorialActivity extends GameActivity {
                 .renderOverNavigationBar()
                 .setTarget(findViewById(R.id.third))
                 .setShapePadding(width/3)
-                //.withRectangleShape(false)
                 .setDismissText(getResources().getString(R.string.got_it))
                 .setContentText(getResources().getString(R.string.third_floor)).build();
 
@@ -164,7 +167,6 @@ public class TutorialActivity extends GameActivity {
                 .renderOverNavigationBar()
                 .setTarget(findViewById(R.id.fourth))
                 .setShapePadding(width/3)
-                //.withRectangleShape(false)
                 .setDismissText(getResources().getString(R.string.got_it))
                 .setContentText(getResources().getString(R.string.fourth_floor)).build();
 
@@ -201,8 +203,6 @@ public class TutorialActivity extends GameActivity {
 
         cubeView.setVisibility(View.INVISIBLE);
 
-        final Button gotIt = (Button) findViewById(R.id.got_it);
-        gotIt.setVisibility(View.VISIBLE);
         gotIt.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -230,13 +230,13 @@ public class TutorialActivity extends GameActivity {
     }
 
     public static void createTutorialBoard(int[][][] board) {
-        board[1][0][0] = LineFloor.RED_HIGHLIGHT;
+        board[1][0][0] = MyGLRenderer.TURN_RED;
         board[0][0][1] = MyGLRenderer.TURN_BLUE;
-        board[0][3][1] = LineFloor.RED_HIGHLIGHT;
+        board[0][3][1] = MyGLRenderer.TURN_RED;
         board[1][2][0] = MyGLRenderer.TURN_BLUE;
-        board[3][0][3] = LineFloor.RED_HIGHLIGHT;
+        board[3][0][3] = MyGLRenderer.TURN_RED;
         board[0][3][0] = MyGLRenderer.TURN_BLUE;
-        board[2][2][2] = LineFloor.RED_HIGHLIGHT;
+        board[2][2][2] = MyGLRenderer.TURN_RED;
         board[1][0][1] = MyGLRenderer.TURN_BLUE;
 
     }
@@ -247,7 +247,7 @@ public class TutorialActivity extends GameActivity {
         board[2][2][1] = LineFloor.RED_WIN;
         board[2][0][3] = MyGLRenderer.TURN_BLUE;
         board[2][2][2] = LineFloor.RED_WIN;
-        board[0][0][0] = MyGLRenderer.TURN_BLUE;
+        board[0][2][0] = MyGLRenderer.TURN_BLUE;
         board[2][2][3] = LineFloor.RED_WIN;
 
     }
@@ -258,7 +258,7 @@ public class TutorialActivity extends GameActivity {
         board[1][2][1] = LineFloor.RED_WIN;
         board[2][0][3] = MyGLRenderer.TURN_BLUE;
         board[1][1][2] = LineFloor.RED_WIN;
-        board[0][0][0] = MyGLRenderer.TURN_BLUE;
+        board[0][1][0] = MyGLRenderer.TURN_BLUE;
         board[1][0][3] = LineFloor.RED_WIN;
 
     }
@@ -269,7 +269,7 @@ public class TutorialActivity extends GameActivity {
         board[1][2][1] = LineFloor.RED_WIN;
         board[2][0][3] = MyGLRenderer.TURN_BLUE;
         board[2][1][2] = LineFloor.RED_WIN;
-        board[0][0][0] = MyGLRenderer.TURN_BLUE;
+        board[0][1][0] = MyGLRenderer.TURN_BLUE;
         board[3][0][3] = LineFloor.RED_WIN;
 
     }
@@ -318,7 +318,6 @@ public class TutorialActivity extends GameActivity {
 
     @Override
     public void nextMove(){
-        Log.d(TAG, "next move");
         if(testCase == 1) {
 
             MaterialShowcaseView game = new MaterialShowcaseView.Builder(this)
@@ -379,6 +378,8 @@ public class TutorialActivity extends GameActivity {
 
                         @Override
                         public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
+                            glView.renderer.gameOver = false;
+                            glView.renderer.turn = MyGLRenderer.TURN_RED;
                             fadeOut(6);
                         }
                     })
@@ -396,6 +397,7 @@ public class TutorialActivity extends GameActivity {
                     .renderOverNavigationBar()
                     .setShapePadding(0)
                     .withoutShape()
+                    .setDelay(1500)
                     .setListener(new IShowcaseListener() {
                         @Override
                         public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
@@ -420,6 +422,7 @@ public class TutorialActivity extends GameActivity {
                     .renderOverNavigationBar()
                     .setShapePadding(0)
                     .withoutShape()
+                    .setDelay(1500)
                     .setListener(new IShowcaseListener() {
                         @Override
                         public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
@@ -449,6 +452,7 @@ public class TutorialActivity extends GameActivity {
                 .renderOverNavigationBar()
                 .setShapePadding(0)
                 .withoutShape()
+                .setDelay(1500)
                 .setListener(new IShowcaseListener() {
                     @Override
                     public void onShowcaseDisplayed(MaterialShowcaseView materialShowcaseView) {
@@ -472,12 +476,15 @@ public class TutorialActivity extends GameActivity {
         switch(transitionID){
             case 1 :
                 winCaseOne(tutorialBoard);
+                gotIt.setVisibility(View.VISIBLE);
                 break;
             case 2 :
                 winCaseTwo(tutorialBoard);
+                gotIt.setVisibility(View.VISIBLE);
                 break;
             case 3 :
                 winCaseThree(tutorialBoard);
+                gotIt.setVisibility(View.VISIBLE);
                 break;
             case 4 :
                 testCaseOne(tutorialBoard);

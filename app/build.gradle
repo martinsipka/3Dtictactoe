@@ -2,8 +2,8 @@ apply plugin: 'com.android.model.application'
 
 model {
     android {
-        compileSdkVersion = 20
-        buildToolsVersion = "20.0.0"
+        compileSdkVersion = 24
+        buildToolsVersion = "24.0.0"
 
         defaultConfig.with {
             applicationId = "sk.martin.tictactoe"
@@ -16,6 +16,7 @@ model {
 
     android.ndk {
         moduleName = "mcts"
+        platformVersion "android-19"
     }
 
    /* android.buildTypes {
@@ -29,11 +30,11 @@ model {
 
 
     dependencies {
-        compile 'com.android.support:support-v4:20.0.0'
+        compile 'com.android.support:support-v4:24.+'
+        compile 'com.android.support:appcompat-v7:24.+'
         compile 'com.google.firebase:firebase-ads:9.2.1'
-        compile 'com.github.amlcurran.showcaseview:library:5.4.3'
         compile 'com.github.deano2390:MaterialShowcaseView:1.1.0@aar'
-
+        compile 'info.hoang8f:android-segmented:1.0.6'
         compile 'com.google.android.gms:play-services-appindexing:9.2.1'
     }
 

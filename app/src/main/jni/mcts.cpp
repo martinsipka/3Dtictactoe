@@ -325,6 +325,11 @@ const int BSF[64] = {0,
                      5,
                      63};
 
+/*static __inline__ int rand(void)
+{
+    rand48();
+}*/
+
 inline unsigned bsf_index(u64 b) {
     b ^= (b - 1);
     return (b * DeBruijn_64) >> 58;
@@ -624,7 +629,7 @@ jint Java_sk_martin_tictactoe_AI_ArtificialIntelligence_getPosition(JNIEnv *env,
         }
         int player = jplayer;
         int playouts = jplayouts;
-        return _search(board, player, playouts, 0.05f);;//_search();
+        return _search(board, player, playouts, 0.05f);//_search();
     }
 
 }
