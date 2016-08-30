@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
     <string name="app_name">TiCube</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
@@ -38,5 +39,14 @@
     <string name="hard">hard</string>
     <string name="very_hard">very hard</string>
 
+    <!-- game strings -->
+    <string name="red">Red</string>
+    <string name="blue">Blue</string>
+    <string name="exit">Press again to exit</string>
+    <string name="red_win">Red win!</string>
+    <string name="blue_win">Blue win!</string>
+    <string name="draw">Draw!</string>
+    <string name="expire_red_win">Time expired. Red win!</string>
+    <string name="expire_blue_win">Time expired. Blue win!</string>
 
 </resources>

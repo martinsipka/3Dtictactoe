@@ -3,11 +3,13 @@ package sk.martin.tictactoe.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
@@ -27,6 +29,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
+import java.util.concurrent.TimeUnit;
+
 import sk.martin.tictactoe.R;
 import sk.martin.tictactoe.backend.Move;
 import sk.martin.tictactoe.frontend.GameView;
@@ -43,11 +47,11 @@ public class GameActivity extends AppCompatActivity {
 
 	GameView glView;
     private ProgressBar progressBar;
-    private RoundedImageView roundedImageView;
     protected ImageButton cubeView;
-    private TextView winText;
+    TextView winText;
     private Button rematch;
-    private LinearLayout shade;
+    private LinearLayout shade, redInfo, blueInfo;
+    TextView redName, blueName, redTime, blueTime;
 
     private boolean recentlyBackPressed = false;
     private boolean enableAdds = true;
@@ -67,7 +71,7 @@ public class GameActivity extends AppCompatActivity {
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
-        setContentView(R.layout.game_activity);
+        setContentView(R.layout.game_layout);
         glView = (GameView) findViewById(R.id.game_view);
 	    cubeView = (ImageButton) findViewById(R.id.cube_view);
         cubeView.setOnClickListener(new View.OnClickListener() {
@@ -88,25 +92,6 @@ public class GameActivity extends AppCompatActivity {
         shade.setVisibility(View.VISIBLE);
         shade.setAlpha(0.0f);
 
-        /*Button back = (Button) findViewById(R.id.back_button);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-				glView.back();
-            }
-        });
-        Button newGame = (Button) findViewById(R.id.new_game_button);
-        newGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                glView.newGame();
-            }
-        });*/
-		roundedImageView = (RoundedImageView) findViewById(R.id.turn_view);
-		glView.setTurnText(roundedImageView);
-
-        winText = (TextView) findViewById(R.id.winText);
-
         rematch = (Button) findViewById(R.id.rematch);
         rematch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,10 +100,19 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
+        redInfo = (LinearLayout) findViewById(R.id.red_info);
+
+        blueInfo = (LinearLayout) findViewById(R.id.blue_info);
+
+        winText = (TextView) findViewById(R.id.winText);
+
         progressBar = (ProgressBar) findViewById(R.id.thinking_progress);
 
+        redName = (TextView) findViewById(R.id.red_name);
+        blueName = (TextView) findViewById(R.id.blue_name);
 
-
+        redTime = (TextView) findViewById(R.id.red_time);
+        blueTime = (TextView) findViewById(R.id.blue_time);
     }
 
 	@Override
@@ -173,36 +167,27 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void setWinner(int winner){
-        TranslateAnimation anim = new TranslateAnimation( 0, -100 , 0, 0 );
-        anim.setDuration(1000);
-        anim.setFillAfter(true);
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        roundedImageView.startAnimation(anim);
+
         winText.setVisibility(View.VISIBLE);
         if(winner == LineFloor.RED_WIN) {
             winText.setTextColor(Color.RED);
-            roundedImageView.setTurn(MyGLRenderer.TURN_RED);
+            winText.setText(getString(R.string.red_win));
         } else if(winner == LineFloor.BLUE_WIN){
             winText.setTextColor(Color.BLUE);
-            roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
+            winText.setText(getString(R.string.blue_win));
+        } else {
+            winText.setTextColor(Color.BLACK);
+            winText.setText(getString(R.string.draw));
         }
         rematch.setVisibility(View.VISIBLE);
-        notifyWin();
     }
 
     public void chooseSide(){
         rematch();
     }
 
-    public void notifyWin(){}
-
     public void rematch(){
 
-        TranslateAnimation anim = new TranslateAnimation( -100, 0 , 0, 0 );
-        anim.setDuration(1000);
-        anim.setFillAfter(true);
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        roundedImageView.startAnimation(anim);
         winText.setVisibility(View.INVISIBLE);
         rematch.setVisibility(View.INVISIBLE);
         glView.newGame();
@@ -228,13 +213,13 @@ public class GameActivity extends AppCompatActivity {
         else
         {
             recentlyBackPressed = true;
-            Toast.makeText(this, "press again to exit", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.exit), Toast.LENGTH_SHORT).show();
             exitHandler.postDelayed(mExitRunnable, DELAY);
         }
     }
 
     void fadeOut(final int transitionID){
-        Log.d("aci", "fadeOut method");
+
         shade.animate().alpha(1f).setDuration(500)
                 .setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
             @Override
@@ -256,5 +241,58 @@ public class GameActivity extends AppCompatActivity {
     }
 
     void transition(int transitionID){}
+
+    public void turnRed(){
+        redInfo.animate().alpha(0.9f).setDuration(500).setInterpolator(new DecelerateInterpolator());
+        blueInfo.animate().alpha(0.3f).setDuration(500).setInterpolator(new DecelerateInterpolator());
+    }
+
+    public void turnBlue(){
+        redInfo.animate().alpha(0.3f).setDuration(500).setInterpolator(new DecelerateInterpolator());
+        blueInfo.animate().alpha(0.9f).setDuration(500).setInterpolator(new DecelerateInterpolator());
+    }
+
+    public void setNames(String nameRed, String nameBlue){
+        redName.setText(nameRed);
+        blueName.setText(nameBlue);
+    }
+
+    public void updateTime(String timeRed, String timeBlue){
+        if(timeRed != null) {
+            redTime.setText(timeRed);
+        }
+        if(timeBlue != null){
+            blueTime.setText(timeBlue);
+        }
+    }
+
+    public void updateTime(long time, int turn){
+        if(turn == MyGLRenderer.TURN_RED){
+            updateTime(String.format("%d : %02d",
+                    TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))
+            ), null);
+        }
+        if(turn == MyGLRenderer.TURN_BLUE){
+            updateTime(null, String.format("%d : %02d",
+                    TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))
+            ));
+        }
+    }
+
+    public void timeOver(int turn){
+        glView.renderer.gameOver = true;
+        if(turn == MyGLRenderer.TURN_RED){
+            winText.setText(getString(R.string.expire_blue_win));
+            glView.setWinner(LineFloor.BLUE_WIN);
+        }
+        if(turn == MyGLRenderer.TURN_BLUE) {
+            winText.setText(getString(R.string.expire_red_win));
+            glView.setWinner(LineFloor.RED_WIN);
+        }
+    }
 
 }

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:background="@android:color/white"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/add_id"/>
+
+    </RelativeLayout>
+
+    <sk.martin.tictactoe.frontend.GameView
+        android:id="@+id/game_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/container" />
+
+    <LinearLayout
+        android:id="@+id/sign_in"
+        android:background="@android:color/white"
+        android:alpha="0.8"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="@color/material_light_blue"
+            android:layout_marginTop="70dp"
+            android:text="@string/app_name"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/desription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="@color/material_light_blue"
+            android:layout_marginTop="70dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/app_name" />
+
+        <Button
+            android:id="@+id/verus"
+            android:text="Quick match"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="93dp"
+            android:theme="@style/MyButton"
+            android:textAllCaps="false"
+            android:onClick="playVersus"
+            android:layout_gravity="center_horizontal" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/button_sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

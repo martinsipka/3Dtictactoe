@@ -47,16 +47,30 @@
             android:layout_alignStart="@+id/tutorial" />
 
         <Button
-            android:id="@+id/versus"
-            android:text="Play versus"
+            android:id="@+id/online"
+            android:text="Play online"
             android:textSize="18sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="93dp"
             android:theme="@style/MyButton"
             android:textAllCaps="false"
-            android:onClick="playVersus"
+            android:onClick="playOnline"
+            android:visibility="visible"
             android:layout_below="@+id/label"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/versus"
+            android:text="Play versus"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:theme="@style/MyButton"
+            android:textAllCaps="false"
+            android:onClick="playVersus"
+            android:layout_below="@+id/online"
             android:layout_centerHorizontal="true" />
 
         <Button
@@ -77,7 +91,7 @@
             android:id="@+id/turn_control"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="1dp"
             android:orientation="horizontal"
             android:layout_below="@+id/bot"
             android:layout_centerHorizontal="true"

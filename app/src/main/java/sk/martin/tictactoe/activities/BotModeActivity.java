@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import sk.martin.tictactoe.AI.AsyncAILoader;
 import sk.martin.tictactoe.frontend.MyGLRenderer;
@@ -38,6 +39,8 @@ public class BotModeActivity extends GameActivity {
         if (!youBegin) {
            nextMove();
         }
+        redTime.setVisibility(View.GONE);
+        blueTime.setVisibility(View.GONE);
     }
 
     @Override

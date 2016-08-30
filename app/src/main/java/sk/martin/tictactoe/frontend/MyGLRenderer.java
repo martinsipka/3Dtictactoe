@@ -36,6 +36,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final float lighPosition[] = {5.0f, 30.0f, 10.0f, 0.0f};
 
+    private float aspect = 1.0f;
+
     private Context context;
     private LineFloor lineFloor;
 
@@ -79,8 +81,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // Clear color and depth buffers
-
-
 
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity();
@@ -129,7 +129,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         if (height == 0)
             height = 1; // To prevent divide by zero
-        float aspect = (float) width / height;
+        aspect = (float) width / height;
+
+        lineFloor.updateAspect(aspect);
 
         // Set the viewport (display area) to cover the entire window
         gl.glViewport(0, 0, width, height);
@@ -151,51 +153,39 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
         gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set color's clear-value to
-        //gl.glClearColor(176/255.0f, 190/255.0f, 197/255.0f, 1.0f);
-        // black
+
         gl.glClearDepthf(1.0f); // Set depth's clear-value to farthest
         gl.glEnable(GL10.GL_DEPTH_TEST); // Enables depth-buffer for hidden
         gl.glEnable(GL10.GL_LIGHTING);
-        gl.glEnable(GL10.GL_LIGHT0);
         gl.glEnable(GL10.GL_COLOR_MATERIAL);
+        gl.glEnable(GL10.GL_NORMALIZE);
 
         ByteBuffer vbb = ByteBuffer.allocateDirect(4 * 4);
         vbb.order(ByteOrder.nativeOrder());
         lightPositionBuffer = vbb.asFloatBuffer();
         lightPositionBuffer.put(lighPosition);
         lightPositionBuffer.position(0);
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPositionBuffer);
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lighPosition, 0);
 
         gl.glEnable(GL10.GL_LIGHT0);
-        float ambientLight[] = {0.7f, 0.7f, 0.7f, 1.0f};
-        float diffuseLight[] = {0.99f, 0.99f, 0.99f, 1.0f};
-        float specularLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
+        float ambientLight[] = {0.4f, 0.4f, 0.4f, 1.0f};
+        float diffuseLight[] = {0.9f, 0.9f, 0.9f, 1.0f};
+        float specularLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-        ByteBuffer vbba = ByteBuffer.allocateDirect(4 * 4);
-        vbba.order(ByteOrder.nativeOrder());
-        FloatBuffer lightAmbientBuffer = vbba.asFloatBuffer();
-        lightAmbientBuffer.put(ambientLight);
-        lightAmbientBuffer.position(0);
-
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, lightAmbientBuffer);
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientLight, 0);
 
 
-        ByteBuffer vbbs = ByteBuffer.allocateDirect(4 * 4);
-        vbbs.order(ByteOrder.nativeOrder());
-        FloatBuffer lightSpecularBuffer = vbbs.asFloatBuffer();
-        lightSpecularBuffer.put(specularLight);
-        lightSpecularBuffer.position(0);
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseLight, 0);
 
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, lightSpecularBuffer);
+        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, specularLight, 0);
 
-        ByteBuffer vbbd = ByteBuffer.allocateDirect(4 * 4);
-        vbbd.order(ByteOrder.nativeOrder());
-        FloatBuffer lightDiffuseBuffer = vbba.asFloatBuffer();
-        lightDiffuseBuffer.put(diffuseLight);
-        lightDiffuseBuffer.position(0);
 
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, lightDiffuseBuffer);
-        gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, lightDiffuseBuffer);
+        float[] brightAmbient = {1.0f, 1.0f, 1.0f, 1.0f};
+        gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, brightAmbient,  0);
+
+        float material[] = {0.5f, 0.5f, 0.5f, 1.0f};
+
+        gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, material, 0);
 
         // surface removal
         gl.glDepthFunc(GL10.GL_LEQUAL); // The type of depth testing to do
@@ -270,15 +260,20 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             winner = LineFloor.BLUE_WIN;
             endGame();
         }
+
+        switchTurn();
+
+        viewReference.requestRender();
+
+        return true;
+    }
+
+    public void switchTurn(){
         if (turn == TURN_RED) {
             turn = TURN_BLUE;
         } else {
             turn = TURN_RED;
         }
-
-        viewReference.requestRender();
-
-        return true;
     }
 
     public void back() {
@@ -302,13 +297,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public void endGame(){
+        viewReference.setWinner(winner);
         int[][] winningCombination = sc.getWinningCombination();
         for(int i = 0; i < 4; i++){
             playBoard[winningCombination[i][0]][winningCombination[i][1]][winningCombination[i][2]]
                     = winner;
         }
         gameOver = true;
-        viewReference.setWinner(winner);
         if(!(viewReference.gameActivity instanceof TutorialActivity)) {
             animations.add(new MakeCubeAnimation());
         }
@@ -317,7 +312,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public void newGame() {
         playBoard = new int[4][4][4];
-        lastMove = new Move();
         turn = TURN_RED;
         gameOver = false;
         sc.updateTable(playBoard);

@@ -214,7 +214,7 @@ public class GameView extends GLSurfaceView {
     }
 
     public void newGame() {
-        roundedImageView.setTurn(MyGLRenderer.TURN_RED);
+        gameActivity.turnRed();
         renderer.newGame();
     }
 
@@ -230,22 +230,18 @@ public class GameView extends GLSurfaceView {
         gameActivity.setWinner(winner);
     }
 
-    public void setTurnText(RoundedImageView roundedImageView) {
-        this.roundedImageView = roundedImageView;
-        roundedImageView.setTurn(MyGLRenderer.TURN_RED);
-    }
 
     public void setGameActivity(GameActivity gameActivity, boolean enableAdds) {
         this.gameActivity = gameActivity;
         this.enableAdds = enableAdds;
     }
 
-    private void switchTurn() {
+    public void switchTurn() {
         if (turn == MyGLRenderer.TURN_RED) {
-            roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
+            gameActivity.turnBlue();//roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
             turn = MyGLRenderer.TURN_BLUE;
         } else if (turn == MyGLRenderer.TURN_BLUE) {
-            roundedImageView.setTurn(MyGLRenderer.TURN_RED);
+            gameActivity.turnRed();//roundedImageView.setTurn(MyGLRenderer.TURN_RED);
             turn = MyGLRenderer.TURN_RED;
         }
 
@@ -274,7 +270,6 @@ public class GameView extends GLSurfaceView {
     public void disableTouch() {
         enableTouch = false;
         System.out.println("diabling touch");
-
     }
 
 }

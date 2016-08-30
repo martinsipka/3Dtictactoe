@@ -121,6 +121,11 @@ public class MenuActivity extends AppCompatActivity {
 
     }
 
+    public void playOnline(View v){
+        Intent intent = new Intent(getBaseContext(), OnlineModeActivity.class);
+        startActivity(intent);
+    }
+
     public void tutorial(View v) {
         Intent intent = new Intent(getBaseContext(), TutorialActivity.class);
         startActivity(intent);

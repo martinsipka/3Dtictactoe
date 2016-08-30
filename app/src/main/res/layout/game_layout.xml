@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <RelativeLayout
         android:id="@+id/container"
@@ -16,58 +17,59 @@
             android:layout_centerHorizontal="true"
             android:background="@android:color/white"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/add_id"/>
+            ads:adUnitId="@string/add_id" />
 
         <TextView
             android:id="@+id/inform"
-            android:visibility="gone"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
     </RelativeLayout>
-    
+
     <View
         android:id="@+id/first"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="250dp"
-        android:layout_marginLeft="100dp"
-        android:visibility="invisible"
         android:layout_width="1dp"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="250dp"
+        android:visibility="invisible" />
 
     <View
         android:id="@+id/second"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="250dp"
-        android:layout_marginRight="100dp"
-        android:visibility="invisible"
         android:layout_width="1dp"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="100dp"
+        android:layout_marginTop="250dp"
+        android:visibility="invisible" />
 
     <View
         android:id="@+id/third"
-        android:layout_alignParentLeft="true"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_marginBottom="200dp"
         android:layout_marginLeft="100dp"
-        android:visibility="invisible"
-        android:layout_width="1dp"
-        android:layout_height="1dp"/>
+        android:visibility="invisible" />
 
     <View
         android:id="@+id/fourth"
-        android:layout_alignParentRight="true"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:layout_marginBottom="200dp"
         android:layout_marginRight="100dp"
-        android:visibility="invisible"
-        android:layout_width="1dp"
-        android:layout_height="1dp"/>
+        android:visibility="invisible" />
 
     <sk.martin.tictactoe.frontend.GameView
         android:id="@+id/game_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         android:layout_below="@+id/container" />
 
     <ImageButton
@@ -80,49 +82,80 @@
         android:background="@android:color/transparent"
         android:src="@drawable/ic_border_all_black_48dp" />
 
-    <!--
-    <Button
-        android:id="@+id/new_game_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:text="New Game"/>
+    <LinearLayout
+        android:id="@+id/red_info"
+        android:layout_width="150dp"
+        android:layout_height="80dp"
+        android:orientation="vertical"
+        android:background="@color/material_red"
+        android:alpha="1.0"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true">
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:text="Back"/>
-        -->
+        <TextView
+            android:id="@+id/red_name"
+            android:text="Red"
+            android:singleLine="true"
+            android:textSize="21dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <sk.martin.tictactoe.frontend.RoundedImageView
-        android:id="@+id/turn_view"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_below="@+id/container"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp" />
+        <TextView
+            android:id="@+id/red_time"
+            android:text="5:00"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/red_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/turn_view"/>
+        <TextView
+            android:id="@+id/red_score"
+            android:text="0"
+            android:textSize="20dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/blue_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/turn_view"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/blue_info"
+        android:layout_width="150dp"
+        android:layout_height="80dp"
+        android:orientation="vertical"
+        android:background="@color/material_light_blue"
+        android:alpha="0.3"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
+
+        <TextView
+            android:id="@+id/blue_name"
+            android:text="Blue"
+            android:textSize="21dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/blue_time"
+            android:text="5:00"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/blue_score"
+            android:text="0"
+            android:textSize="20dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/thinking_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/turn_view"
+        android:layout_below="@+id/container"
         android:layout_centerHorizontal="true"
         android:visibility="invisible" />
 
@@ -162,17 +195,18 @@
 
     <LinearLayout
         android:id="@+id/shade"
-        android:orientation="vertical"
-        android:background="@android:color/white"
-        android:visibility="visible"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:visibility="visible" />
 
     <RelativeLayout
         android:id="@+id/connecting_layout"
         android:orientation="vertical"
         android:background="@android:color/white"
         android:visibility="invisible"
+        android:alpha="0.8"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -188,6 +222,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/material_light_blue"
             android:layout_below="@+id/connecting"
+            android:layout_centerHorizontal="true"
             android:text="Connecting"/>
 
     </RelativeLayout>

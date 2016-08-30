@@ -40,5 +40,14 @@
     <string name="hard">ťažké</string>
     <string name="very_hard">veľmi ťažké</string>
 
+    <string name="red">Red</string>
+    <string name="blue">Blue</string>
+    <string name="exit">Press again to exit</string>
+    <string name="red_win">Red win!</string>
+    <string name="blue_win">Blue win!</string>
+    <string name="draw">Draw!</string>
+    <string name="expire_red_win">Time expired. Red win!</string>
+    <string name="expire_blue_win">Time expired. Blue win!</string>
+
 
 </resources>
