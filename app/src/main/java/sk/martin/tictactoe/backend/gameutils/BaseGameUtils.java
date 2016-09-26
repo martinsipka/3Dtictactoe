@@ -13,6 +13,7 @@ import com.google.android.gms.games.GamesActivityResultCodes;
 
 import sk.martin.tictactoe.R;
 import sk.martin.tictactoe.backend.Move;
+import sk.martin.tictactoe.frontend.LineFloor;
 
 public class BaseGameUtils {
 
@@ -222,7 +223,9 @@ public class BaseGameUtils {
         for(int i = 0; i < 4; i++){
             for(int j = 0; j < 4; j++){
                 for(int k = 0; k < 4; k++){
-                    if(playBoard[i][j][k] != newBoard[i][j][k]){
+                    if(playBoard[i][j][k] != newBoard[i][j][k] &&
+                            playBoard[i][j][k] + LineFloor.WIN != newBoard[i][j][k] ){
+                        Log.d("TAG", "" + i + " " + j + " " + k + " new board" + newBoard[i][j][k]);
                         //If i begin i get blue, if he begins i get red
                         return new Move(i,j,k, turn);
                     }

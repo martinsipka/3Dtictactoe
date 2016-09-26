@@ -158,6 +158,19 @@ public class ScoreCheck {
         }
     }
 
+    public boolean isDraw(){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                for(int k = 0; k < 4; k++){
+                    if(a[i][j][k] == 0){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public int[][] getWinningCombination(){
         return winningCombination;
     }

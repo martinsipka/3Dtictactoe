@@ -132,6 +132,7 @@
             android:id="@+id/blue_name"
             android:text="Blue"
             android:textSize="21dp"
+            android:singleLine="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -181,6 +182,17 @@
         android:text="@string/rematch"
         android:theme="@style/MyButton"
         android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="20dp"
+        android:text="@string/help"
+        android:theme="@style/MyButton"
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/got_it"

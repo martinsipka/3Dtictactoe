@@ -48,11 +48,11 @@
 
         <Button
             android:id="@+id/online"
-            android:text="Play online"
+            android:text="@string/play_online"
             android:textSize="18sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="93dp"
+            android:layout_marginTop="145dp"
             android:theme="@style/MyButton"
             android:textAllCaps="false"
             android:onClick="playOnline"
@@ -60,27 +60,34 @@
             android:layout_below="@+id/label"
             android:layout_centerHorizontal="true" />
 
+        <TextView
+            android:id="@+id/rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/online"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/material_light_blue"/>
+
         <Button
             android:id="@+id/versus"
-            android:text="Play versus"
+            android:text="@string/play_vs"
             android:textSize="18sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
             android:theme="@style/MyButton"
             android:textAllCaps="false"
             android:onClick="playVersus"
-            android:layout_below="@+id/online"
+            android:layout_below="@+id/rating"
             android:layout_centerHorizontal="true" />
 
         <Button
             android:id="@+id/bot"
-            android:text="Play with bot"
+            android:text="@string/play_bot"
             android:textSize="18sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="5dp"
             android:theme="@style/MyButton"
             android:layout_below="@+id/versus"
             android:textAllCaps="false"
@@ -102,16 +109,55 @@
                 android:id="@+id/player_begin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="You begin"
+                android:text="@string/you_begin"
                 style="@style/RadioButton" />
 
             <RadioButton
                 android:id="@+id/bot_begin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bot begins"
+                android:text="@string/bot_begin"
                 style="@style/RadioButton" />
+
         </info.hoang8f.android.segmented.SegmentedGroup>
+
+        <ImageView
+            android:id="@+id/first_lock"
+            android:layout_alignLeft="@+id/turn_control"
+            android:layout_alignTop="@+id/turn_control"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="45dp"
+            android:src="@drawable/ic_lock_outline_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/first_star"
+            android:layout_alignLeft="@+id/turn_control"
+            android:layout_alignTop="@+id/turn_control"
+            android:layout_marginTop="17dp"
+            android:layout_marginLeft="45dp"
+            android:src="@drawable/star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/second_lock"
+            android:layout_alignRight="@+id/turn_control"
+            android:layout_alignTop="@+id/turn_control"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/ic_lock_outline_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/second_star"
+            android:layout_alignRight="@+id/turn_control"
+            android:layout_alignTop="@+id/turn_control"
+            android:layout_marginTop="17dp"
+            android:src="@drawable/star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <android.support.v7.widget.AppCompatSeekBar
             android:id="@+id/seek_bar"
@@ -142,6 +188,31 @@
             android:onClick="tutorial"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true" />
+
+        <ImageButton
+            android:src="@drawable/leaderboard"
+            android:background="@android:color/transparent"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:onClick="seeLeaderboard"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:scaleType="centerInside"
+            />
+
+        <ImageButton
+            android:src="@drawable/achievement"
+            android:background="@android:color/transparent"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:onClick="seeAchievements"
+            android:layout_marginBottom="6dp"
+            android:layout_marginLeft="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:scaleType="centerInside"
+            />
 
     </RelativeLayout>
 

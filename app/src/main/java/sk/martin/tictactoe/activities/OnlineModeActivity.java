@@ -1,18 +1,23 @@
 package sk.martin.tictactoe.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,6 +37,7 @@ import java.util.List;
 import java.util.Random;
 
 import sk.martin.tictactoe.R;
+import sk.martin.tictactoe.backend.Achievements;
 import sk.martin.tictactoe.backend.Move;
 import sk.martin.tictactoe.backend.gameutils.BaseGameUtils;
 import sk.martin.tictactoe.backend.gameutils.GameCountDown;
@@ -44,6 +50,11 @@ import sk.martin.tictactoe.frontend.MyGLRenderer;
 public class OnlineModeActivity extends GameActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         RoomUpdateListener, RealTimeMessageReceivedListener, RoomStatusUpdateListener {
+
+    public static final int MULTIPLAYER_VERSION = 1;
+    public static final String MULTIPLAYER_SCORE = "multiplayer_score";
+    public static final int LOOSE_DECREMENT = 5;
+    public static final String LEADERBOARD_ID = "CgkI7uOS38EHEAIQAQ";
 
     public static final byte TURN_START = 0;
     public static final byte POSITION_UPDATE = 1;
@@ -61,7 +72,7 @@ public class OnlineModeActivity extends GameActivity
     final static int RC_WAITING_ROOM = 10002;
 
     // Request code used to invoke sign in user interactions.
-    private static final int RC_SIGN_IN = 9001;
+    public static final int RC_SIGN_IN = 9001;
 
     public static final long GAME_TIME = 300000L;
 
@@ -75,9 +86,8 @@ public class OnlineModeActivity extends GameActivity
 
     private String mMyId;
 
-    private boolean firstMatch = true;
-
     private boolean wantRematch = false;
+    private boolean enemyWantRematch = false;
 
     private RelativeLayout connectingLayout;
     private int redScore, blueScore;
@@ -91,6 +101,7 @@ public class OnlineModeActivity extends GameActivity
     private int enemyTurnColor;
     private byte myRandom = 0;
     private byte attempt = 0;
+    private SharedPreferences prefs;
 
     private GameCountDown myCountDown, enemyCountDown;
 
@@ -117,6 +128,8 @@ public class OnlineModeActivity extends GameActivity
 
         rematch = (Button) findViewById(R.id.rematch);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
     }
 
     @Override
@@ -132,8 +145,144 @@ public class OnlineModeActivity extends GameActivity
     }
 
     @Override
-    public void nextMove() {
+    public void onStop() {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
 
+    @Override
+    public void nextMove(boolean winningMove) {
+
+        sendBoard();
+        if (!winningMove) {
+            setWaiting();
+            myCountDown.pause();
+            enemyCountDown.resume();
+        }
+        Log.d(TAG, "send");
+
+    }
+
+    @Override
+    public void setWinner(int winner) {
+
+        if(winner == myTurnColor + LineFloor.WIN){
+            setScoreWon();
+        }
+
+        myCountDown.reset();
+        enemyCountDown.reset();
+
+        if (winner == LineFloor.RED_WIN) {
+            redScore++;
+        } else if (winner == LineFloor.BLUE_WIN) {
+            blueScore++;
+        }
+
+        updateScore();
+
+        super.setWinner(winner);
+
+    }
+
+    @Override
+    public void timeOver(int turn) {
+
+        myCountDown.reset();
+        enemyCountDown.reset();
+
+        if (turn == myTurnColor) {
+            //Lost
+            byte[] msg = new byte[64];
+
+            msg[0] = TIME_OVER;
+
+            for (Participant p : participants) {
+                if (!p.getParticipantId().equals(mMyId)) {
+                    Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, msg,
+                            mRoomId, p.getParticipantId());
+                }
+            }
+
+            if(myTurnColor == MyGLRenderer.TURN_RED){
+                blueScore++;
+            } else {
+                redScore++;
+            }
+
+        } else {
+            //Won
+            if(myTurnColor == MyGLRenderer.TURN_RED){
+                blueScore++;
+            } else {
+                redScore++;
+            }
+            setScoreWon();
+        }
+        super.timeOver(myTurnColor);
+
+        updateScore();
+        //lost dont update staticsti
+        Log.d(TAG, "send");
+    }
+
+    private void opponentLeft(){
+
+        if(!glView.renderer.gameOver) {
+
+            if(myCountDown != null) {
+                myCountDown.pause();
+                enemyCountDown.pause();
+            }
+            setScoreWon();
+
+            winText.setTextColor(Color.BLACK);
+            winText.setText(getString(R.string.opponent_left));
+            winText.setVisibility(View.VISIBLE);
+
+            hideWaiting();
+        }
+
+        rematch.setVisibility(View.VISIBLE);
+        rematch.setText(R.string.back_menu);
+        rematch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        glView.renderer.gameOver = true;
+    }
+
+    @Override
+    public void rematch() {
+
+        if(!wantRematch) {
+
+            byte[] msg = new byte[64];
+
+            msg[0] = REMATCH_REQUEST;
+
+            for (Participant p : participants) {
+                if (!p.getParticipantId().equals(mMyId)) {
+                    Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, msg,
+                            mRoomId, p.getParticipantId());
+                }
+            }
+            Log.d(TAG, "send");
+            wantRematch = true;
+        }
+
+        if (enemyWantRematch) {
+            rematchAccepted();
+        }
+
+    }
+
+    private void sendBoard() {
         byte[] message = new byte[200];
         message[0] = POSITION_UPDATE;
         BaseGameUtils.createByteArray(message, getPlayBoard(), PLAYBOARD_OFFSET);
@@ -145,107 +294,41 @@ public class OnlineModeActivity extends GameActivity
                         mRoomId, p.getParticipantId());
             }
         }
-        setWaiting();
-        myCountDown.pause();
-        enemyCountDown.resume();
-        Log.d(TAG, "send");
-
     }
 
-    @Override
-    public void setWinner(int winner){
-        nextMove();
-        myCountDown.reset();
-        enemyCountDown.reset();
-        if (firstMatch) {
-            winText.setText("Switching sides...");
-            if(winner == LineFloor.RED_WIN){
-                redScore++;
-            } else if(winner == LineFloor.BLUE_WIN){
-                blueScore++;
-            }
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+    private void rematchAccepted() {
 
-                @Override
-                public void run() {
-                    if(startTurn == MY_TURN){
-                        startTurn = ENEMY_TURN;
-                        setWaiting();
-                    } else {
-                        startTurn = MY_TURN;
-                        setReady();
-                    }
-                    glView.newGame();
-                }
-
-            }, 5000);
-            firstMatch = false;
-            updateScore();
-            Log.d(TAG, "first match over");
-        } else {
-            if (redScore > blueScore) {
-                super.setWinner(LineFloor.RED_WIN);
-            } else if (redScore < blueScore) {
-                super.setWinner(LineFloor.BLUE_WIN);
-            } else {
-                super.setWinner(56985470);
-            }
-        }
-    }
-
-    @Override
-    public void timeOver(int turn){
-        byte[] msg = new byte[64];
-
-        msg[0] = TIME_OVER;
-
-        for (Participant p : participants) {
-            if (!p.getParticipantId().equals(mMyId)) {
-                Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, msg,
-                        mRoomId, p.getParticipantId());
-            }
-        }
-        timeOver(myTurnColor);
-        Log.d(TAG, "send");
-    }
-
-    @Override
-    public void rematch() {
-
-        byte[] msg = new byte[64];
-
-        msg[0] = REMATCH_REQUEST;
-
-        for (Participant p : participants) {
-            if (!p.getParticipantId().equals(mMyId)) {
-                Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, msg,
-                        mRoomId, p.getParticipantId());
-            }
-        }
-        Log.d(TAG, "send");
-
-        if(wantRematch){
-            rematchAccepted();
-        }
-
-    }
-
-    private void rematchAccepted(){
         winText.setVisibility(View.INVISIBLE);
         rematch.setVisibility(View.INVISIBLE);
-        redScore = 0;
-        blueScore = 0;
-        updateScore();
-        glView.newGame();
-        if(startTurn == MY_TURN){
+
+        if (startTurn == MY_TURN) {
             startTurn = ENEMY_TURN;
             setWaiting();
+            if(myTurnColor == MyGLRenderer.TURN_RED){
+                glView.newGame(MyGLRenderer.TURN_BLUE);
+                turnBlue();
+                enemyCountDown.resume();
+            } else {
+                glView.newGame(MyGLRenderer.TURN_RED);
+                turnRed();
+                enemyCountDown.resume();
+            }
         } else {
             startTurn = MY_TURN;
+            if(myTurnColor == MyGLRenderer.TURN_RED){
+                glView.newGame(MyGLRenderer.TURN_RED);
+                turnRed();
+                myCountDown.resume();
+            } else {
+                glView.newGame(MyGLRenderer.TURN_BLUE);
+                turnBlue();
+                myCountDown.resume();
+            }
         }
-        firstMatch = false;
+
+        setScoreNewGame();
         wantRematch = false;
+        enemyWantRematch = false;
     }
 
     @Override
@@ -302,7 +385,7 @@ public class OnlineModeActivity extends GameActivity
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -337,25 +420,13 @@ public class OnlineModeActivity extends GameActivity
         Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
         if (statusCode != GamesStatusCodes.STATUS_OK) {
             Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
-            //TODO showGameError();
+            Toast.makeText(this, getString(R.string.bad_connection), Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
-        // save room ID so we can leave cleanly before the game starts.
         mRoomId = room.getRoomId();
-
-        // show the waiting room UI
         showWaitingRoom(room);
-    }
-
-    @Override
-    public void onJoinedRoom(int i, Room room) {
-
-    }
-
-    @Override
-    public void onLeftRoom(int i, String s) {
-
     }
 
     @Override
@@ -363,12 +434,25 @@ public class OnlineModeActivity extends GameActivity
         Log.d(TAG, "onRoomConnected(" + statusCode + ", " + room + ")");
         if (statusCode != GamesStatusCodes.STATUS_OK) {
             Log.e(TAG, "*** Error: onRoomConnected, status " + statusCode);
-            //TODO showGameError();
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.congrats))
+                    .setMessage(getString(R.string.decide_continue))
+                    .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            rematch();
+                        }
+                    })
+                    .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).show();
             return;
         }
         participants = room.getParticipants();
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
         decideTurn();
+
     }
 
     @Override
@@ -391,7 +475,7 @@ public class OnlineModeActivity extends GameActivity
                         sendStarterShake();
                     } else {
                         startTurn = myRandom > message[2] ? MY_TURN : ENEMY_TURN;
-                        if(startTurn == MY_TURN){
+                        if (startTurn == MY_TURN) {
                             myTurnColor = MyGLRenderer.TURN_RED;
                             enemyTurnColor = MyGLRenderer.TURN_BLUE;
                             for (Participant p : participants) {
@@ -412,11 +496,12 @@ public class OnlineModeActivity extends GameActivity
                                 }
                             }
                         }
-                        startMatch();
+
                         myCountDown = new GameCountDown(GAME_TIME, this, myTurnColor, true);
                         enemyCountDown = new GameCountDown(GAME_TIME, this, enemyTurnColor, false);
                         updateTime(GAME_TIME, MyGLRenderer.TURN_RED);
                         updateTime(GAME_TIME, MyGLRenderer.TURN_BLUE);
+                        startMatch();
                     }
 
                 }
@@ -429,78 +514,26 @@ public class OnlineModeActivity extends GameActivity
                 int[][][] newBoard = BaseGameUtils.createIntArray(message, PLAYBOARD_OFFSET);
                 Move move = BaseGameUtils.findNew(getPlayBoard(), newBoard, startTurn);
                 enemyCountDown.updateTime(BaseGameUtils.bytesToLong(message, TIME_OFFSET));
-                Log.d(TAG, "" + markSquare(move));
+                boolean success = markSquare(move);
+                if (!success) {
+                    throw new RuntimeException("Not possible move send");
+                }
                 setReady();
-                myCountDown.resume();
-                enemyCountDown.pause();
+                if(!glView.renderer.gameOver) {
+                    myCountDown.resume();
+                    enemyCountDown.pause();
+                }
                 break;
             case REMATCH_REQUEST:
-                if(wantRematch){
+                Log.d(TAG, "rematch requested");
+                if (wantRematch) {
                     rematchAccepted();
+                } else {
+                    enemyWantRematch = true;
                 }
                 //show rematch request
                 break;
         }
-    }
-
-    @Override
-    public void onRoomConnecting(Room room) {
-
-    }
-
-    @Override
-    public void onRoomAutoMatching(Room room) {
-
-    }
-
-    @Override
-    public void onPeerInvitedToRoom(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onPeerDeclined(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onPeerJoined(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onPeerLeft(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onConnectedToRoom(Room room) {
-
-    }
-
-    @Override
-    public void onDisconnectedFromRoom(Room room) {
-
-    }
-
-    @Override
-    public void onPeersConnected(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onPeersDisconnected(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onP2PConnected(String s) {
-
-    }
-
-    @Override
-    public void onP2PDisconnected(String s) {
-
     }
 
     void startQuickGame() {
@@ -512,6 +545,7 @@ public class OnlineModeActivity extends GameActivity
         RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
         rtmConfigBuilder.setMessageReceivedListener(this);
         rtmConfigBuilder.setRoomStatusUpdateListener(this);
+        rtmConfigBuilder.setVariant(MULTIPLAYER_VERSION);
         rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
         keepScreenOn();
         Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
@@ -555,16 +589,21 @@ public class OnlineModeActivity extends GameActivity
         Log.d(TAG, "send");
     }
 
-    void startMatch(){
+    void startMatch() {
+
+        setScoreNewGame();
         connectingLayout.setVisibility(View.INVISIBLE);
-        if(startTurn == ENEMY_TURN){
+
+        if (startTurn == ENEMY_TURN) {
             setWaiting();
             enemyCountDown.resume();
+        } else {
+            myCountDown.resume();
         }
-        myCountDown.resume();
+
     }
 
-    void updateScore(){
+    void updateScore() {
         redScoreBoard.setText(Integer.toString(redScore));
         blueScoreBoard.setText(Integer.toString(blueScore));
     }
@@ -573,7 +612,105 @@ public class OnlineModeActivity extends GameActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    void setScoreNewGame(){
+        int points = prefs.getInt(MULTIPLAYER_SCORE, 100);
+        points -= LOOSE_DECREMENT;
+        prefs.edit().putInt(MULTIPLAYER_SCORE, points).apply();
+        Games.Leaderboards.submitScore(mGoogleApiClient, LEADERBOARD_ID, points);
+        //Log.d("Score", points + "");
+    }
+
+    void setScoreWon(){
+        int points = prefs.getInt(MULTIPLAYER_SCORE, 100);
+        points += LOOSE_DECREMENT * 2;
+        prefs.edit().putInt(MULTIPLAYER_SCORE, points).apply();
+        Games.Leaderboards.submitScore(mGoogleApiClient, LEADERBOARD_ID, points);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getInt(Achievements.FIRST_ONLINE_ACHIEVEMENT, Achievements.INVISIBLE) <
+                Achievements.COMPLETED){
+            prefs.edit().putInt(Achievements.FIRST_ONLINE_ACHIEVEMENT,
+                    Achievements.COMPLETED).apply();
+            prefs.edit().putBoolean(Achievements.NEW_ACHIEVEMENT, true).apply();
+        }
+        Log.d("Score", points + "");
+    }
+
     void stopKeepingScreenOn() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
+
+    @Override
+    public void onRoomConnecting(Room room) {
+
+    }
+
+    @Override
+    public void onRoomAutoMatching(Room room) {
+
+    }
+
+    @Override
+    public void onPeerInvitedToRoom(Room room, List<String> list) {
+
+    }
+
+    @Override
+    public void onPeerDeclined(Room room, List<String> list) {
+
+    }
+
+    @Override
+    public void onPeerJoined(Room room, List<String> list) {
+
+    }
+
+    @Override
+    public void onPeerLeft(Room room, List<String> list) {
+        Log.d(TAG, "on peer left");
+    }
+
+    @Override
+    public void onConnectedToRoom(Room room) {
+
+    }
+
+    @Override
+    public void onDisconnectedFromRoom(Room room) {
+        Log.d(TAG, "on disconnected from room");
+
+    }
+
+    @Override
+    public void onPeersConnected(Room room, List<String> list) {
+
+    }
+
+    @Override
+    public void onPeersDisconnected(Room room, List<String> list) {
+        Log.d(TAG, "on peer disconnected");
+        opponentLeft();
+    }
+
+    @Override
+    public void onP2PConnected(String s) {
+
+    }
+
+    @Override
+    public void onP2PDisconnected(String s) {
+        Log.d(TAG, "p2p disconnected");
+
+    }
+
+    @Override
+    public void onJoinedRoom(int i, Room room) {
+
+    }
+
+    @Override
+    public void onLeftRoom(int i, String s) {
+
+    }
+
+
 }

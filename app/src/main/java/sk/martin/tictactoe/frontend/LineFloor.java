@@ -6,6 +6,7 @@ import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
+
 import sk.martin.tictactoe.backend.Move;
 
 /**
@@ -13,21 +14,24 @@ import sk.martin.tictactoe.backend.Move;
  */
 public class LineFloor {
 
+    public static final int WIN = 50;
     public static final int RED_CUBE = 1;
     public static final int BLUE_CUBE = 5;
-    public static final int RED_WIN = 21;
-    public static final int BLUE_WIN = 85;
-    public static final int HIGHLIGHT = 50;
+    public static final int RED_WIN = RED_CUBE + WIN;
+    public static final int BLUE_WIN = BLUE_CUBE + WIN;
+    public static final int DRAW = 213;
+    public static final int HIGHLIGHT = 100;
     public static final int RED_HIGHLIGHT = RED_CUBE + HIGHLIGHT;
     public static final int BLUE_HIGHLIGHT = BLUE_CUBE + HIGHLIGHT;
     public static final int TUTORIAL_HIGHLIGHT = 200;
 
 
     private FloatBuffer vertexBuffer, normalBuffer;
+    private ByteBuffer indexBuffer;
     private int[][][] a;
     private Move lastMove;
     private int floorIndex;
-    public static final int[][] floorColors = {{255, 86, 34}, {255, 150, 0}, {255, 203, 7}, {255, 214, 0}};
+    public static final int[][] floorColors = {{255, 86, 34}, {255, 150, 0}, {255, 203, 7}, {139,195,74}};
     float[] normals;
 
     //public static final int[][] floorColors = {{255,115,115}, {64,224,208}, {247,194,130}, {123,37,242}};
@@ -38,17 +42,77 @@ public class LineFloor {
         a = b;
         this.lastMove = lastMove;
         float[] vertices = {
+
+                -0.2f, 0.0f, 0.2f,
+                -0.1f, 0.0f, 0.2f,
+                 0.0f, 0.0f, 0.2f,
+                 0.1f, 0.0f, 0.2f,
+                 0.2f, 0.0f, 0.2f,
+
+                -0.2f, 0.0f, 0.1f,
+                -0.1f, 0.0f, 0.1f,
+                0.0f, 0.0f, 0.1f,
+                0.1f, 0.0f, 0.1f,
+                0.2f, 0.0f, 0.1f,
+
+                -0.2f, 0.0f, 0.0f,
+                -0.1f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f,
+                0.1f, 0.0f, 0.0f,
+                0.2f, 0.0f, 0.0f,
+
+                -0.2f, 0.0f, -0.1f,
+                -0.1f, 0.0f, -0.1f,
+                0.0f, 0.0f, -0.1f,
+                0.1f, 0.0f, -0.1f,
+                0.2f, 0.0f, -0.1f,
+
+                -0.2f, 0.0f, -0.2f,
+                -0.1f, 0.0f, -0.2f,
+                0.0f, 0.0f, -0.2f,
+                0.1f, 0.0f, -0.2f,
+                0.2f, 0.0f, -0.2f,
+
                 -0.25f, 0.0f, -0.25f,
                 -0.25f, 0.0f, 0.25f,
                 0.25f, 0.0f, 0.25f,
                 0.25f, 0.0f, -0.25f,
-                -0.2f, 0.0f, -0.2f,
-                -0.2f, 0.0f, 0.2f,
-                0.2f, 0.0f, -0.2f,
-                0.2f, 0.0f, 0.2f,
+        };
+
+        byte[] indices = {
+
+                0, 5, 1, 6, 2, 7, 3, 8, 4, 9, 9,
+                5, 5, 10, 6, 11, 7, 12, 8, 13, 9, 14, 14,
+                10, 10, 15, 11, 16, 12, 17, 13, 18, 14, 19, 19,
+                15, 15, 20, 16, 21, 17, 22, 18, 23, 19, 24
         };
 
         float[] normals = {
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+
+                0.0f, 1.0f, 0.0f,
                 0.0f, 1.0f, 0.0f,
                 0.0f, 1.0f, 0.0f,
                 0.0f, 1.0f, 0.0f,
@@ -57,16 +121,20 @@ public class LineFloor {
 
         this.normals = normals;
 
-        ByteBuffer vbb = ByteBuffer.allocateDirect(12 * 2 * 4);
+        ByteBuffer vbb = ByteBuffer.allocateDirect(vertices.length * 4);
         vbb.order(ByteOrder.nativeOrder());
         vertexBuffer = vbb.asFloatBuffer();
         vertexBuffer.put(vertices);
         vertexBuffer.position(0);
-        ByteBuffer vbb2 = ByteBuffer.allocateDirect(12 * 4);
+        ByteBuffer vbb2 = ByteBuffer.allocateDirect(normals.length * 4);
         vbb2.order(ByteOrder.nativeOrder());
         normalBuffer = vbb2.asFloatBuffer();
         normalBuffer.put(normals);
         normalBuffer.position(0);
+
+        indexBuffer = ByteBuffer.allocateDirect(indices.length);
+        indexBuffer.put(indices);
+        indexBuffer.position(0);
     }
 
     public void drawFloor(GL10 gl, int i, float pulse) {
@@ -74,6 +142,7 @@ public class LineFloor {
         floorIndex = i;
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
+
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertexBuffer);
         gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
         //gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
@@ -177,43 +246,29 @@ public class LineFloor {
         gl.glLineWidth(3);
         gl.glColor4f(floorColors[i][0] / 255.0f, floorColors[i][1] / 255.0f,
                 floorColors[i][2] / 255.0f, 1.0f);
-        gl.glDrawArrays(GL10.GL_LINE_LOOP, 0, 4);
+        gl.glDrawArrays(GL10.GL_LINE_LOOP, 25, 4);
     }
 
     private void drawColoredSite(GL10 gl, int color, float pulse) {
 
         if (color == RED_CUBE) {
             gl.glColor4f(1.0f, 0.321f, 0.321f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         } else if(color == BLUE_CUBE){
             gl.glColor4f(0.09f, 0.463f, 0.823f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         } else if(color == RED_WIN){
-            //gl.glDisable(GL10.GL_LIGHT0);
-            //gl.glEnable(GL10.GL_LIGHT1);
-            //gl.glColor4f(0.5f + pulse, 0.0f, 0.0f, 1.0f);
             gl.glColor4f(1.0f, 0.321f + pulse, 0.321f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
-            //gl.glDisable(GL10.GL_LIGHT1);
-            //gl.glEnable(GL10.GL_LIGHT0);
         } else if(color == BLUE_WIN){
-            //gl.glDisable(GL10.GL_LIGHT0);
-            //gl.glEnable(GL10.GL_LIGHT1);
-            //gl.glColor4f(0.0f, 0.0f, 0.5f + pulse, 1.0f);
             gl.glColor4f(0.09f, 0.463f + pulse, 0.823f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
-            //.glDisable(GL10.GL_LIGHT1);
-            //gl.glEnable(GL10.GL_LIGHT0);
         } else if(color == RED_HIGHLIGHT){
             gl.glColor4f(0.913f, 0.117f, 0.352f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         } else if(color == BLUE_HIGHLIGHT){
             gl.glColor4f(0.425f, 0.427f, 1.0f, 1.0f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
         } else if(color == TUTORIAL_HIGHLIGHT){
-            gl.glColor4f(0.0f, 0.2f, 0.2f, 0.2f);
-            gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 4, 4);
+            gl.glColor4f(0.3f, 0.9f, 0.5f, 0.2f);
         }
+
+        gl.glDrawElements(GL10.GL_TRIANGLE_STRIP, 46, GL10.GL_UNSIGNED_BYTE, indexBuffer);
+
 
     }
 

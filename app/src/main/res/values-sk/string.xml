@@ -6,12 +6,16 @@
     <string name="hello_world">Hello world!</string>
 
     <!-- main menu constants -->
-    <string name="play_vs">Play versus</string>
-    <string name="play_bot">Play with bot</string>
+    <string name="play_vs">Hra s kamaratom</string>
+    <string name="play_bot">Hra s botom</string>
+    <string name="play_online">Hra online</string>
     <string name="quit">Quit</string>
     <string name="win">Win!</string>
     <string name="add_id">ca-app-pub-3797519520523288/1154535052</string>
     <string name="rematch">Odveta!</string>
+    <string name="you_begin">začínam</string>
+    <string name="bot_begin">bot začína</string>
+    <string name="rating">Rating: </string>
 
     <!-- tutorial strings -->
     <string name="got_it">Jasne!</string>
@@ -28,7 +32,7 @@
     <string name="second_floor">Druhé poschodie kocky.</string>
     <string name="third_floor">Tretie poschodie kocky.</string>
     <string name="fourth_floor">Štvrté poschodie kocky.</string>
-    <string name="assisted_win">Ťahom na zvýraznené políčko vyhrajte hru. Na ťahu je červený</string>
+    <string name="assisted_win">Ťahom na zelené políčko vyhrajte hru. Na ťahu je červený</string>
     <string name="second_win">Skúste nájsť výťazný ťah tentoraz sami.</string>
     <string name="third_win">Skvele. Teraz to skúste znova. Nezabudnite, že možno vyhrať aj po
         uhlopriečke</string>
@@ -39,15 +43,29 @@
     <string name="medium">stredné</string>
     <string name="hard">ťažké</string>
     <string name="very_hard">veľmi ťažké</string>
+    <string name="help">pomoc</string>
 
-    <string name="red">Red</string>
-    <string name="blue">Blue</string>
+
+    <string name="red">Červený</string>
+    <string name="blue">Modrý</string>
     <string name="exit">Press again to exit</string>
-    <string name="red_win">Red win!</string>
-    <string name="blue_win">Blue win!</string>
-    <string name="draw">Draw!</string>
-    <string name="expire_red_win">Time expired. Red win!</string>
-    <string name="expire_blue_win">Time expired. Blue win!</string>
+    <string name="red_win">Červený vyhráva!</string>
+    <string name="blue_win">Modrý vyhráva!</string>
+    <string name="draw">Remíza!</string>
+    <string name="expire_red_win">Čas vypršal. Červený vyhráva!</string>
+    <string name="expire_blue_win">Čas vypršal. Modrý vyhráva!</string>
+    <string name="opponent_left">Súper opustil hru. Vyhrávate!</string>
+    <string name="bad_connection">Chyba pripojenia. Skontrolujte pripojenie.</string>
+    <string name="back_menu">Späť do menu</string>
 
+
+
+    <string name="congrats">Gratulujem!</string>
+    <string name="all_bots_down">Porazili ste všetky úrovné počítača.</string>
+    <string name="play_again">Hrať znova</string>
+    <string name="decide_continue">Môžťe pokračovať na ďalší level.</string>
+    <string name="cont">Pokračovať</string>
+    <string name="bot_name">Bot</string>
+    <string name="player_name">Hráč</string>
 
 </resources>

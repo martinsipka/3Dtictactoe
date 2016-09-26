@@ -30,10 +30,7 @@ public class GameView extends GLSurfaceView {
     private float topMargin;
     private float leftMargin;
     private float rightMargin;
-    private RoundedImageView roundedImageView;
-    private int turn = MyGLRenderer.TURN_RED;
     private boolean enableTouch = true;
-    private boolean enableAdds = true;
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -54,8 +51,8 @@ public class GameView extends GLSurfaceView {
                 leftMargin =  0.04f;
                 rightMargin = 0.17f;
                 height = getHeight();
-                topMargin = 0.21f;
-                bottomMargin = 0.3f;
+                topMargin = leftMargin; //0.21f
+                bottomMargin = rightMargin; //0.3f
                 Log.d(TAG, width + " " + height);
             }
 
@@ -134,14 +131,22 @@ public class GameView extends GLSurfaceView {
                                 renderer.state = MyGLRenderer.STATE_FLOORS;
                                 return true;
                             }
-                            if (currentY / height < top || currentY / height > 1.0f - bottom) {
+
+                            currentY = currentY - (height - width) / 2;
+
+                            if (currentY / width < top || currentY / width > 1.0f - bottom) {
                                 renderer.pushNewAnim(new ZoomOutAnimation());
                                 renderer.state = MyGLRenderer.STATE_FLOORS;
                                 return true;
                             }
 
                             float relativeX = currentX / width;
-                            float relativeY = currentY / height;
+                            float relativeY = currentY / width;
+
+                            Log.d(TAG, "suradnica");
+
+                            Log.d(TAG, Float.toString(relativeX - leftMargin + left));
+
                             if (relativeX < 0.251f - leftMargin + left) {
                                 xCoor = 0;
                             } else if (relativeX < 0.444f - leftMargin + left) {
@@ -151,22 +156,24 @@ public class GameView extends GLSurfaceView {
                             } else {
                                 xCoor = 3;
                             }
-                            if (relativeY < 0.35f - topMargin + top) {
+                            if (relativeY < 0.251f - topMargin + top) {
                                 yCoor = 0;
-                            } else if (relativeY < 0.464f - topMargin + top) {
+                            } else if (relativeY < 0.444f - topMargin + top) {
                                 yCoor = 1;
-                            } else if (relativeY < 0.576f - topMargin + top) {
+                            } else if (relativeY < 0.631f - topMargin + top) {
                                 yCoor = 2;
                             } else {
                                 yCoor = 3;
                             }
 
                             if (renderer.markAsPlayer(xCoor, yCoor)) {
+                                gameActivity.nextMove(renderer.gameOver);
                                 if(!renderer.gameOver) {
                                     if(!(gameActivity instanceof TutorialActivity)) {
                                         switchTurn();
                                     }
-                                    gameActivity.nextMove();
+                                } else {
+                                    renderer.endGame();
                                 }
                             } else {
                                 Log.d(TAG, "false on touch");
@@ -201,21 +208,17 @@ public class GameView extends GLSurfaceView {
         return true;  // Event handled
     }
 
-    public void setState(int state) {
-        if (renderer.state == MyGLRenderer.STATE_CUBE ||
-                renderer.state == MyGLRenderer.STATE_FLOORS) {
-            state = -state;
-            renderer.state = state;
-        }
-    }
-
     public void back() {
         renderer.back();
     }
 
-    public void newGame() {
-        gameActivity.turnRed();
-        renderer.newGame();
+    public void newGame(int startTurn) {
+        if(startTurn == MyGLRenderer.TURN_RED) {
+            gameActivity.turnRed();
+        } else if(startTurn == MyGLRenderer.TURN_BLUE){
+            gameActivity.turnBlue();
+        }
+        renderer.newGame(startTurn);
     }
 
     public int getState(){
@@ -233,16 +236,13 @@ public class GameView extends GLSurfaceView {
 
     public void setGameActivity(GameActivity gameActivity, boolean enableAdds) {
         this.gameActivity = gameActivity;
-        this.enableAdds = enableAdds;
     }
 
     public void switchTurn() {
-        if (turn == MyGLRenderer.TURN_RED) {
-            gameActivity.turnBlue();//roundedImageView.setTurn(MyGLRenderer.TURN_BLUE);
-            turn = MyGLRenderer.TURN_BLUE;
-        } else if (turn == MyGLRenderer.TURN_BLUE) {
-            gameActivity.turnRed();//roundedImageView.setTurn(MyGLRenderer.TURN_RED);
-            turn = MyGLRenderer.TURN_RED;
+        if (renderer.turn == MyGLRenderer.TURN_RED) {
+            gameActivity.turnRed();
+        } else if (renderer.turn == MyGLRenderer.TURN_BLUE) {
+            gameActivity.turnBlue();
         }
 
     }
@@ -255,6 +255,9 @@ public class GameView extends GLSurfaceView {
         if (renderer.markSquare(move)) {
             if(!renderer.gameOver) {
                 switchTurn();
+
+            } else {
+                renderer.endGame();
             }
             return true;
         }

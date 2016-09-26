@@ -40,6 +40,7 @@ public class GameCountDown {
     public void reset(){
         pause();
         timeLeft = initialTime;
+        activity.updateTime(timeLeft, turn);
     }
 
     public void updateTime(long time){
@@ -51,6 +52,11 @@ public class GameCountDown {
     }
 
     private void createTimer(){
+
+        if(countDown != null) {
+            countDown.cancel();
+        }
+
         countDown = new CountDownTimer(timeLeft, INTERVAL){
 
             @Override

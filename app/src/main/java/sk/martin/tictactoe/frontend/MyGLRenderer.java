@@ -34,7 +34,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public static final int TURN_RED = 1;
     public static final int TURN_BLUE = 5;
 
-    private static final float lighPosition[] = {5.0f, 30.0f, 10.0f, 0.0f};
+    private static final float lighPosition[] = {25.0f, 70.0f, 30.0f, 0.0f};
 
     private float aspect = 1.0f;
 
@@ -160,17 +160,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         gl.glEnable(GL10.GL_COLOR_MATERIAL);
         gl.glEnable(GL10.GL_NORMALIZE);
 
-        ByteBuffer vbb = ByteBuffer.allocateDirect(4 * 4);
-        vbb.order(ByteOrder.nativeOrder());
-        lightPositionBuffer = vbb.asFloatBuffer();
-        lightPositionBuffer.put(lighPosition);
-        lightPositionBuffer.position(0);
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lighPosition, 0);
 
         gl.glEnable(GL10.GL_LIGHT0);
         float ambientLight[] = {0.4f, 0.4f, 0.4f, 1.0f};
         float diffuseLight[] = {0.9f, 0.9f, 0.9f, 1.0f};
-        float specularLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float specularLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
 
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientLight, 0);
 
@@ -184,8 +179,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, brightAmbient,  0);
 
         float material[] = {0.5f, 0.5f, 0.5f, 1.0f};
+        float specularMaterial[] = {0.5f, 0.5f, 0.5f, 1.0f};
 
-        gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_AMBIENT, material, 0);
+        gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_DIFFUSE, material, 0);
+        //gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR, specularMaterial, 0);
 
         // surface removal
         gl.glDepthFunc(GL10.GL_LEQUAL); // The type of depth testing to do
@@ -254,11 +252,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         if (checked == 1) {
             //Toast.makeText(context, "Red win!", Toast.LENGTH_LONG).show();
             winner = LineFloor.RED_WIN;
-            endGame();
+            gameOver = true;
         } else if (checked == 2) {
             //Toast.makeText(context, "Blue win!", Toast.LENGTH_LONG).show();
             winner = LineFloor.BLUE_WIN;
-            endGame();
+            gameOver = true;
+        } else {
+            //No one win draw?
+            if (sc.isDraw()) {
+                gameOver = true;
+                winner = LineFloor.DRAW;
+            }
         }
 
         switchTurn();
@@ -296,23 +300,26 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     }
 
-    public void endGame(){
+    public void endGame() {
         viewReference.setWinner(winner);
-        int[][] winningCombination = sc.getWinningCombination();
-        for(int i = 0; i < 4; i++){
-            playBoard[winningCombination[i][0]][winningCombination[i][1]][winningCombination[i][2]]
-                    = winner;
+        if(winner != LineFloor.DRAW) {
+
+            int[][] winningCombination = sc.getWinningCombination();
+            for (int i = 0; i < 4; i++) {
+                playBoard[winningCombination[i][0]][winningCombination[i][1]][winningCombination[i][2]]
+                        = winner;
+            }
         }
-        gameOver = true;
+
         if(!(viewReference.gameActivity instanceof TutorialActivity)) {
             animations.add(new MakeCubeAnimation());
         }
         lastMove.setX(-1);
     }
 
-    public void newGame() {
+    public void newGame(int starTurn) {
         playBoard = new int[4][4][4];
-        turn = TURN_RED;
+        turn = starTurn;
         gameOver = false;
         sc.updateTable(playBoard);
         lineFloor.updateTable(playBoard);

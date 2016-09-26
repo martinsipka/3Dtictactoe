@@ -1,8 +1,12 @@
 package sk.martin.tictactoe.activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import sk.martin.tictactoe.R;
+import sk.martin.tictactoe.backend.Achievements;
 import sk.martin.tictactoe.backend.gameutils.GameCountDown;
 import sk.martin.tictactoe.frontend.MyGLRenderer;
 
@@ -28,27 +32,39 @@ public class VersusModeActivity extends GameActivity {
     }
 
     @Override
-    public void nextMove() {
-        if(glView.renderer.turn == MyGLRenderer.TURN_RED){
+    public void nextMove(boolean winningMove) {
+
+        if (glView.renderer.turn == MyGLRenderer.TURN_RED) {
             blueCountDown.pause();
             redCountDown.resume();
-        } else if (glView.renderer.turn == MyGLRenderer.TURN_BLUE){
+        } else if (glView.renderer.turn == MyGLRenderer.TURN_BLUE) {
             redCountDown.pause();
             blueCountDown.resume();
         }
+
     }
 
     @Override
-    public void setWinner(int winner){
+    public void setWinner(int winner) {
         redCountDown.reset();
         blueCountDown.reset();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getInt(Achievements.OFFLINE_GAME_ACHIEVEMENT, Achievements.INVISIBLE) <
+                Achievements.COMPLETED){
+            prefs.edit().putInt(Achievements.OFFLINE_GAME_ACHIEVEMENT,
+                    Achievements.COMPLETED).apply();
+            prefs.edit().putBoolean(Achievements.NEW_ACHIEVEMENT, true).apply();
+        }
+
         super.setWinner(winner);
     }
 
     @Override
-    public void rematch(){
+    public void rematch() {
         updateTime(GAME_TIME, MyGLRenderer.TURN_RED);
         updateTime(GAME_TIME, MyGLRenderer.TURN_BLUE);
+        redCountDown.resume();
         super.rematch();
     }
 }

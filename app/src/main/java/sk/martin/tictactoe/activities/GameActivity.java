@@ -3,6 +3,7 @@ package sk.martin.tictactoe.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -43,6 +44,8 @@ import sk.martin.tictactoe.frontend.MyGLRenderer;
 
 public class GameActivity extends AppCompatActivity {
 
+
+    public static final String TAG = "ACtivity tag";
     private static final long DELAY = 2000L;
 
 	GameView glView;
@@ -65,6 +68,7 @@ public class GameActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
      
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -122,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
 		return true;
 	}
 
-    public void nextMove(){
+    public void nextMove(boolean winningMove){
         Log.d("tag", "next move");
     }
 
@@ -190,7 +194,7 @@ public class GameActivity extends AppCompatActivity {
 
         winText.setVisibility(View.INVISIBLE);
         rematch.setVisibility(View.INVISIBLE);
-        glView.newGame();
+        glView.newGame(MyGLRenderer.TURN_RED);
 
     }
 
@@ -250,6 +254,11 @@ public class GameActivity extends AppCompatActivity {
     public void turnBlue(){
         redInfo.animate().alpha(0.3f).setDuration(500).setInterpolator(new DecelerateInterpolator());
         blueInfo.animate().alpha(0.9f).setDuration(500).setInterpolator(new DecelerateInterpolator());
+    }
+
+    public void hideControls(){
+        redInfo.setVisibility(View.INVISIBLE);
+        blueInfo.setVisibility(View.INVISIBLE);
     }
 
     public void setNames(String nameRed, String nameBlue){
