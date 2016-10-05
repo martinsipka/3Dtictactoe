@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TiCube</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <!-- main menu constants -->
+    <string name="play_vs">Hrajte s kamarády</string>
+    <string name="play_bot">Hrajte proti mobilu</string>
+    <string name="play_online">Hrajte online</string>
+    <string name="quit">Quit</string>
+    <string name="win">Win!</string>
+    <string name="add_id">ca-app-pub-3797519520523288/1154535052</string>
+    <string name="rematch">Odveta!</string>
+    <string name="you_begin">Začínám</string>
+    <string name="bot_begin">Bot začíná</string>
+    <string name="rating">Rating: </string>
+
+    <!-- tutorial strings -->
+    <string name="got_it">Jasně!</string>
+    <string name="intro">
+        Ticube je hra podobná piškvorkám, ale hraje se ve třech dimenzích. Tohle je hrací plocha. Zkuste si ji otočit prstem.</string>
+    <string name="win_one">Vítězem je ten, kdo jako první vytvoří nepřerušenou řadu čtyř kostek.</string>
+    <string name="win_two">Dále můžete vyhrát, když vytvoříte řadu úhlopříčně skrz patra.</string>
+    <string name="win_three">Vyhrát lze i tím, že vytvoříte úhlopříčku krychle. Pozorně si prohlédněte následující snímek.</string>
+    <string name="cube_button">Tímto tlačítkem změníte náhled na hrací plochu. V náhledu na krychli snadno získáte přehled o hrací ploše
+        a proběhlých tazích. V náhledu na jednotlivá patra můžete udělat vlastní tah."</string>
+    <string name="first_floor">První patro krychle.</string>
+    <string name="second_floor">Druhé patro krychle.</string>
+    <string name="third_floor">Třetí patro krychle.</string>
+    <string name="fourth_floor">Čtvrté patro krychle.</string>
+    <string name="assisted_win">Když kliknete na zelené políčko, vyhrajete hru. Na řadě je červený.</string>
+    <string name="second_win">Teď zkuste přijít na vítězný tah sami.</string>
+    <string name="third_win">Výborně. Teď to zkuste znovu. Pamatujte si, že můžete vyhrát i vytvořením úhlopříčky krychle.</string>
+    <string name="tutorial_end">Hezky. Jste připraveni ke hře.</string>
+    <string name="next">Ďalej</string>
+    <string name="try_again">Tohle není vítězný tah. Zkuste to znova.</string>
+    <string name="easy">Jednoduchá</string>
+    <string name="medium">Pokročilá</string>
+    <string name="hard">Obtížná</string>
+    <string name="very_hard">Expert</string>
+    <string name="help">Nápověda</string>
+
+
+    <string name="red">Červený</string>
+    <string name="blue">Modrý</string>
+    <string name="exit">Press again to exit</string>
+    <string name="red_win">Červený vyhrává!</string>
+    <string name="blue_win">Modrý vyhrává!</string>
+    <string name="draw">Remíza!</string>
+    <string name="expire_red_win">Čas vypršel. Červený vyhrává!</string>
+    <string name="expire_blue_win">Čas vypršel. Modrý vyhrává!</string>
+    <string name="opponent_left">Soupeř opustil hru. Vyhráváte!</string>
+    <string name="bad_connection">Nelze se připojit ke hře. Zkontrolujte připojení.</string>
+    <string name="back_menu">Návrat do menu</string>
+
+
+
+    <string name="congrats">Gratuluji!</string>
+    <string name="all_bots_down">Porazili jste všechny úrovně mobilu.</string>
+    <string name="play_again">Další hra</string>
+    <string name="decide_continue">Výborně. Můžete pokračovat na další úroveň.</string>
+    <string name="cont">Pokračovat</string>
+    <string name="bot_name">Bot</string>
+    <string name="player_name">Hráč</string>
+
+</resources>
