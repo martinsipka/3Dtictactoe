@@ -27,6 +27,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.IOException;
 
@@ -50,6 +51,15 @@ public class MenuActivity extends AppCompatActivity implements GoogleApiClient.C
     public static final int REQUEST_LEADERBOARD = 454;
     public static final int REQUEST_ACHIEVEMENTS = 474;
 
+    //Analytics
+
+    public static final String MAINSCREEN = "mainscreen";
+    public static final String GAME_TYPE = "game_type";
+    public static final String GAME_SELECT = "selecting_game";
+    public static final String ONLINE_PLAY = "online_play";
+    public static final String VERSUS_PLAY = "versus_play";
+    public static final String BOT_PLAY = "bot_play";
+
 
     private int[][][] tutorialBoard = new int[4][4][4];
     private int progress;
@@ -63,12 +73,16 @@ public class MenuActivity extends AppCompatActivity implements GoogleApiClient.C
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingConnectionFailure;
     private boolean mAutoStartSignInFlow = true;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics.logEvent(MAINSCREEN, null);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -199,6 +213,9 @@ public class MenuActivity extends AppCompatActivity implements GoogleApiClient.C
     public void playOnline(View v) {
         Intent intent = new Intent(getBaseContext(), OnlineModeActivity.class);
         startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putString(GAME_TYPE, ONLINE_PLAY);
+        mFirebaseAnalytics.logEvent(GAME_SELECT, bundle);
     }
 
     public void tutorial(View v) {
@@ -209,6 +226,9 @@ public class MenuActivity extends AppCompatActivity implements GoogleApiClient.C
     public void playVersus(View v) {
         Intent intent = new Intent(getBaseContext(), VersusModeActivity.class);
         startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putString(GAME_TYPE, VERSUS_PLAY);
+        mFirebaseAnalytics.logEvent(GAME_SELECT, bundle);
     }
 
     public void playBot(View v) {
@@ -220,6 +240,9 @@ public class MenuActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             Toast.makeText(this, "not unlocked", Toast.LENGTH_SHORT).show();
         }
+        Bundle bundle = new Bundle();
+        bundle.putString(GAME_TYPE, BOT_PLAY);
+        mFirebaseAnalytics.logEvent(GAME_SELECT, bundle);
     }
 
     public void seeLeaderboard(View v) {

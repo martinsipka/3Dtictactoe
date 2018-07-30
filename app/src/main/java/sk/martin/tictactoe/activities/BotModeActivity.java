@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.games.multiplayer.Participant;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import sk.martin.tictactoe.AI.AsyncAILoader;
 import sk.martin.tictactoe.R;
@@ -30,17 +31,27 @@ public class BotModeActivity extends GameActivity {
     public static final int DIFFICULTY_HARD = 30000;
     public static final int DIFFICULTY_VERY_HARD = 60000;
 
+    //Analytics
+
+    public static final String BOTMODE_WINNER = "botmode_winner";
+    public static final String PLAYER = "player";
+    public static final String BOT = "bot";
+
     private int difficulty;
     private int playouts;
     private boolean youBegin = true;
     private int myColor;
     private int turn = MyGLRenderer.TURN_RED;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setGameActivity(this);
         Intent intent = getIntent();
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         youBegin = intent.getBooleanExtra(MenuActivity.BEGIN, true);
         difficulty = intent.getIntExtra(MenuActivity.DIFFICULTY_PREF, 0);
@@ -89,8 +100,16 @@ public class BotModeActivity extends GameActivity {
 
             }, 5000);
 
+            Bundle bundle = new Bundle();
+            bundle.putString(BOTMODE_WINNER, PLAYER);
+            mFirebaseAnalytics.logEvent(BOTMODE_WINNER, bundle);
+
         } else {
             super.setWinner(winner);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(BOTMODE_WINNER, BOT);
+            mFirebaseAnalytics.logEvent(BOTMODE_WINNER, bundle);
             //decideBegin();
         }
     }

@@ -26,14 +26,14 @@
     <string name="win_two">Ďalším spôsobom ako vyhrať je naprieč poschodiami.</string>
     <string name="win_three">Inou možnosťou je vyhrať v uhlopriečke kocky. Pozrite si pozorne tento
         scenár.</string>
-    <string name="cube_button">Použite toto tlačidlo na zmenu pohladu na plochu. V pohlade na kocku
-        si ľahko prezriete plochu. V pohlade na poschodia možno vykonávať ťahy."</string>
+    <string name="cube_button">Použite toto tlačidlo na zmenu pohľadu na plochu. V pohľade na kocku
+        si ľahko prezriete plochu. V pohľade na poschodia možno vykonávať ťahy."</string>
     <string name="first_floor">Prvé poschodie kocky.</string>
     <string name="second_floor">Druhé poschodie kocky.</string>
     <string name="third_floor">Tretie poschodie kocky.</string>
     <string name="fourth_floor">Štvrté poschodie kocky.</string>
     <string name="assisted_win">Ťahom na zelené políčko vyhrajte hru. Na ťahu je červený</string>
-    <string name="second_win">Skúste nájsť výťazný ťah tentoraz sami.</string>
+    <string name="second_win">Skúste nájsť víťazný ťah tentoraz sami.</string>
     <string name="third_win">Skvele. Teraz to skúste znova. Nezabudnite, že možno vyhrať aj po
         uhlopriečke</string>
     <string name="tutorial_end">Pekne. Ste pripravený hrať.</string>
@@ -61,9 +61,9 @@
 
 
     <string name="congrats">Gratulujem!</string>
-    <string name="all_bots_down">Porazili ste všetky úrovné počítača.</string>
+    <string name="all_bots_down">Porazili ste všetky úrovne počítača.</string>
     <string name="play_again">Hrať znova</string>
-    <string name="decide_continue">Môžťe pokračovať na ďalší level.</string>
+    <string name="decide_continue">Môžte pokračovať na ďalší level.</string>
     <string name="cont">Pokračovať</string>
     <string name="bot_name">Bot</string>
     <string name="player_name">Hráč</string>

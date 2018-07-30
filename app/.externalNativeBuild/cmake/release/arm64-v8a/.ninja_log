@@ -1,0 +1,3 @@
+# ninja log v5
+0	316	0	CMakeFiles/mcts.dir/app/src/main/cpp/mcts.cpp.o	f411397a48e91e6d
+316	334	0	../../../../build/intermediates/cmake/release/obj/arm64-v8a/libmcts.so	8faf9cc3face2f27

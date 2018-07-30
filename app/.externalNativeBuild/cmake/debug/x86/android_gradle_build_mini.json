@@ -1,0 +1,16 @@
+{
+  "buildFiles": [
+    "/home/martin/AndroidProjects/3dtictactoe/CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/x86 --target clean"
+  ],
+  "libraries": {
+    "mcts-Debug-x86": {
+      "artifactName": "mcts",
+      "buildCommand": "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/x86 --target mcts",
+      "abi": "x86",
+      "output": "/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/cmake/debug/obj/x86/libmcts.so"
+    }
+  }
+}

@@ -7,6 +7,8 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import java.util.Stack;
 
 import sk.martin.tictactoe.R;
@@ -23,16 +25,31 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 public class TutorialActivity extends GameActivity {
 
     public static final String TAG = "tutorial tag";
+    public static final String TUTORIAL_PROGRESS = "Tutorial_progress";
+    public static final String FIRST_SCREEN = "First_screen_done";
+    public static final String ALL_WINS = "All_wins_seen";
+    public static final String WRONG_MOVE = "Wrong_move";
+    public static final String TEST_CASE_ID = "Test_case_id";
 
     private int[][][] tutorialBoard = new int[4][4][4];
     private int testCase = 1;
     private Button gotIt, help;
     MaterialShowcaseView game = null;
+    private FirebaseAnalytics mFirebaseAnalytics;
+
+    /*Example event
+    Bundle bundle = new Bundle();
+    bundle.putString(FirebaseAnalytics.Param.ITEM_ID, id);
+    bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
+    bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+    mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setGameActivity(this);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, null);
         //createTutorialBoard(tutorialBoard);
         createTutorialBoard(tutorialBoard);
 
@@ -60,6 +77,9 @@ public class TutorialActivity extends GameActivity {
                     @Override
                     public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
                         gotIt.setVisibility(View.VISIBLE);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(TUTORIAL_PROGRESS, FIRST_SCREEN);
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.CAMPAIGN_DETAILS, bundle);
                     }
                 })
                 .setDismissText(getResources().getString(R.string.next))
@@ -137,7 +157,9 @@ public class TutorialActivity extends GameActivity {
 
                     @Override
                     public void onShowcaseDismissed(MaterialShowcaseView materialShowcaseView) {
-
+                        Bundle bundle = new Bundle();
+                        bundle.putString(TUTORIAL_PROGRESS, ALL_WINS);
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.CAMPAIGN_DETAILS, bundle);
                     }
                 })
                 .setTarget(findViewById(R.id.cube_view))
@@ -340,6 +362,12 @@ public class TutorialActivity extends GameActivity {
     @Override
     public void nextMove(boolean winningMove){
         if(!winningMove) {
+
+            Bundle bundle = new Bundle();
+            bundle.putString(WRONG_MOVE, WRONG_MOVE);
+            bundle.putInt(TEST_CASE_ID, testCase);
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.CAMPAIGN_DETAILS, bundle);
+
             if (testCase == 1) {
 
                 game = new MaterialShowcaseView.Builder(this)
@@ -391,6 +419,7 @@ public class TutorialActivity extends GameActivity {
                                     public void onClick(View view) {
                                         game.resetSingleUse();
                                         game.show(TutorialActivity.this);
+                                        Bundle bundle = new Bundle();
                                     }
                                 });
                             }
@@ -522,6 +551,7 @@ public class TutorialActivity extends GameActivity {
                                     true).apply();
                             prefs.edit().putBoolean(Achievements.NEW_ACHIEVEMENT, true).apply();
                         }
+                        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, null);
                     }
 
                     @Override
