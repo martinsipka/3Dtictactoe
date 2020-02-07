@@ -1,4 +1,4 @@
-# 3Dtictactoe
+# Ticube
 Simple 3D tictactoe game written by Martin Šípka and bot written by Ondrej Skácel.  
 
 Available on [google play](https://play.google.com/store/apps/details?id=sk.martin.tictactoe). 
