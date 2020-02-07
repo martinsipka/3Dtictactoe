@@ -1,4 +1,0 @@
-#Mon Jul 30 20:21:38 ICT 2018
-base.0=/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/transforms/dexMerger/release/0
-path.0=classes.dex
-renamed.0=classes.dex
