@@ -1,16 +1,16 @@
 {
   "buildFiles": [
-    "/home/martin/AndroidProjects/3dtictactoe/CMakeLists.txt"
+    "/home/martin/AndroidStudioProjects/3dtictactoe/CMakeLists.txt"
   ],
   "cleanCommands": [
-    "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/armeabi-v7a --target clean"
+    "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidStudioProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/armeabi-v7a --target clean"
   ],
   "libraries": {
     "mcts-Debug-armeabi-v7a": {
       "artifactName": "mcts",
-      "buildCommand": "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/armeabi-v7a --target mcts",
+      "buildCommand": "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidStudioProjects/3dtictactoe/app/.externalNativeBuild/cmake/debug/armeabi-v7a --target mcts",
       "abi": "armeabi-v7a",
-      "output": "/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libmcts.so"
+      "output": "/home/martin/AndroidStudioProjects/3dtictactoe/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libmcts.so"
     }
   }
 }

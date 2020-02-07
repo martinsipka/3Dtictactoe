@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="generated">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/build/generated/mockable-android-22.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/generated/mockable-android-20.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/generated/mockable-android-24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/generated/mockable-android-23.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

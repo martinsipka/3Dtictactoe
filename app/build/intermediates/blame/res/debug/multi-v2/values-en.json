@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-en/values-en.xml",
+            "outputFile": "/home/martin/AndroidStudioProjects/3dtictactoe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-en/values-en.xml",
             "map": [
                 {
-                    "source": "/home/martin/AndroidProjects/3dtictactoe/app/src/main/res/values-en/string.xml",
+                    "source": "/home/martin/AndroidStudioProjects/3dtictactoe/app/src/main/res/values-en/string.xml",
                     "from": {
                         "startLines": "4,13,62,3,34,57,68,49,52,16,66,61,65,28,64,53,40,50,55,54,30,33,21,42,5,44,22,41,38,56,63,9,10,8,67,11,17,48,51,14,31,35,32,36,39,37,43,12,25,27,26,15",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

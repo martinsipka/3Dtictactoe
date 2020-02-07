@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-en-rIN/values-en-rIN.xml",
+            "outputFile": "/home/martin/AndroidStudioProjects/3dtictactoe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-en-rIN/values-en-rIN.xml",
             "map": [
                 {
-                    "source": "/home/martin/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/9c5caa2ea2e26308b54f046b8922d479/res/values-en-rIN/values-en-rIN.xml",
+                    "source": "/home/martin/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/a3fe51022b4f3600503dc51747725efd/res/values-en-rIN/values-en-rIN.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/home/martin/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/cae22c08c13451579321b14a8ac7aeef/res/values-en-rIN/values-en-rIN.xml",
+                    "source": "/home/martin/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/994c74f269d517dd8358a95bd560f628/res/values-en-rIN/values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

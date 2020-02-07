@@ -106,7 +106,13 @@
     <declare-styleable name="ActionMenuView"/>
     <declare-styleable name="ActionMode"><attr name="titleTextStyle"/><attr name="subtitleTextStyle"/><attr name="background"/><attr name="backgroundSplit"/><attr name="height"/><attr format="reference" name="closeItemLayout"/></declare-styleable>
     <declare-styleable name="ActivityChooserView"><attr format="string" name="initialActivityCount"/><attr format="reference" name="expandActivityOverflowButtonDrawable"/></declare-styleable>
-    <declare-styleable name="AdsAttrs"><attr format="string" name="adSize"/><attr format="string" name="adSizes"/><attr format="string" name="adUnitId"/></declare-styleable>
+    <declare-styleable name="AdsAttrs">
+<attr format="string" name="adSize"/>
+
+<attr format="string" name="adSizes"/>
+
+<attr format="string" name="adUnitId"/>
+</declare-styleable>
     <declare-styleable name="AlertDialog"><attr name="android:layout"/><attr format="reference" name="buttonPanelSideLayout"/><attr format="reference" name="listLayout"/><attr format="reference" name="multiChoiceItemLayout"/><attr format="reference" name="singleChoiceItemLayout"/><attr format="reference" name="listItemLayout"/><attr format="boolean" name="showTitle"/><attr format="dimension" name="buttonIconDimen"/></declare-styleable>
     <declare-styleable name="AppCompatImageView"><attr name="android:src"/><attr format="reference" name="srcCompat"/><attr format="color" name="tint"/><attr name="tintMode">
             
@@ -226,9 +232,29 @@
             
             <flag name="all" value="0x77"/>
         </attr></declare-styleable>
-    <declare-styleable name="Corpus"><attr format="string" name="corpusId"/><attr format="string" name="corpusVersion"/><attr format="string" name="contentProviderUri"/><attr format="boolean" name="trimmable"/><attr format="string" name="schemaOrgType"/><attr format="boolean" name="semanticallySearchable"/><attr format="integer" name="documentMaxAgeSecs"/><attr format="boolean" name="perAccountTemplate"/></declare-styleable>
+    <declare-styleable name="Corpus">
+<attr format="string" name="corpusId"/>
+
+<attr format="string" name="corpusVersion"/>
+
+<attr format="string" name="contentProviderUri"/>
+
+<attr format="boolean" name="trimmable"/>
+
+<attr format="string" name="schemaOrgType"/>
+
+<attr format="boolean" name="semanticallySearchable"/>
+
+<attr format="integer" name="documentMaxAgeSecs"/>
+
+<attr format="boolean" name="perAccountTemplate"/>
+</declare-styleable>
     <declare-styleable name="DrawerArrowToggle"><attr format="color" name="color"/><attr format="boolean" name="spinBars"/><attr format="dimension" name="drawableSize"/><attr format="dimension" name="gapBetweenBars"/><attr format="dimension" name="arrowHeadLength"/><attr format="dimension" name="arrowShaftLength"/><attr format="dimension" name="barLength"/><attr format="dimension" name="thickness"/></declare-styleable>
-    <declare-styleable name="FeatureParam"><attr format="string" name="paramName"/><attr format="string" name="paramValue"/></declare-styleable>
+    <declare-styleable name="FeatureParam">
+<attr format="string" name="paramName"/>
+
+<attr format="string" name="paramValue"/>
+</declare-styleable>
     <declare-styleable name="FontFamily"><attr format="string" name="fontProviderAuthority"/><attr format="string" name="fontProviderPackage"/><attr format="string" name="fontProviderQuery"/><attr format="reference" name="fontProviderCerts"/><attr name="fontProviderFetchStrategy">
             
             <enum name="blocking" value="0"/>
@@ -242,8 +268,22 @@
             <enum name="normal" value="0"/>
             <enum name="italic" value="1"/>
         </attr><attr format="reference" name="font"/><attr format="integer" name="fontWeight"/><attr name="android:fontStyle"/><attr name="android:font"/><attr name="android:fontWeight"/></declare-styleable>
-    <declare-styleable name="GlobalSearch"><attr format="boolean" name="searchEnabled"/><attr format="string" name="searchLabel"/><attr format="string" name="settingsDescription"/><attr format="string" name="defaultIntentAction"/><attr format="string" name="defaultIntentData"/><attr format="string" name="defaultIntentActivity"/></declare-styleable>
-    <declare-styleable name="GlobalSearchCorpus"><attr format="boolean" name="allowShortcuts"/></declare-styleable>
+    <declare-styleable name="GlobalSearch">
+<attr format="boolean" name="searchEnabled"/>
+
+<attr format="string" name="searchLabel"/>
+
+<attr format="string" name="settingsDescription"/>
+
+<attr format="string" name="defaultIntentAction"/>
+
+<attr format="string" name="defaultIntentData"/>
+
+<attr format="string" name="defaultIntentActivity"/>
+</declare-styleable>
+    <declare-styleable name="GlobalSearchCorpus">
+<attr format="boolean" name="allowShortcuts"/>
+</declare-styleable>
     <declare-styleable name="GlobalSearchSection"><attr name="sectionType">
 <enum name="text1" value="0"/>
 
@@ -265,15 +305,29 @@
 
 <enum name="thing_proto" value="9"/>
 
-</attr><attr format="string" name="sectionContent"/></declare-styleable>
-    <declare-styleable name="IMECorpus"><attr format="boolean" name="inputEnabled"/><attr name="sourceClass">
+</attr>
+
+<attr format="string" name="sectionContent"/>
+</declare-styleable>
+    <declare-styleable name="IMECorpus">
+<attr format="boolean" name="inputEnabled"/>
+<attr name="sourceClass">
 <enum name="email" value="0"/>
 
 <enum name="contact" value="1"/>
 
 <enum name="instant_message" value="2"/>
 
-</attr><attr format="string" name="userInputTag"/><attr format="string" name="userInputSection"/><attr format="string" name="userInputValue"/><attr format="string" name="toAddressesSection"/></declare-styleable>
+</attr>
+
+<attr format="string" name="userInputTag"/>
+
+<attr format="string" name="userInputSection"/>
+
+<attr format="string" name="userInputValue"/>
+
+<attr format="string" name="toAddressesSection"/>
+</declare-styleable>
     <declare-styleable name="LinearLayoutCompat"><attr name="android:orientation"/><attr name="android:gravity"/><attr name="android:baselineAligned"/><attr name="android:baselineAlignedChildIndex"/><attr name="android:weightSum"/><attr format="boolean" name="measureWithLargestChild"/><attr name="divider"/><attr name="showDividers">
             <flag name="none" value="0"/>
             <flag name="beginning" value="1"/>
@@ -289,7 +343,12 @@
 
 <enum name="adjust_height" value="2"/>
 
-</attr><attr format="float" name="imageAspectRatio"/><attr format="boolean" name="circleCrop"/></declare-styleable>
+</attr>
+
+<attr format="float" name="imageAspectRatio"/>
+
+<attr format="boolean" name="circleCrop"/>
+</declare-styleable>
     <declare-styleable name="MenuGroup"><attr name="android:id"/><attr name="android:menuCategory"/><attr name="android:orderInCategory"/><attr name="android:checkableBehavior"/><attr name="android:visible"/><attr name="android:enabled"/></declare-styleable>
     <declare-styleable name="MenuItem"><attr name="android:id"/><attr name="android:menuCategory"/><attr name="android:orderInCategory"/><attr name="android:title"/><attr name="android:titleCondensed"/><attr name="android:icon"/><attr name="android:alphabeticShortcut"/><attr name="alphabeticModifiers">
             <flag name="META" value="0x10000"/>
@@ -335,7 +394,9 @@
     <declare-styleable name="PopupWindowBackgroundState"><attr format="boolean" name="state_above_anchor"/></declare-styleable>
     <declare-styleable name="RecycleListView"><attr format="dimension" name="paddingBottomNoButtons"/><attr format="dimension" name="paddingTopNoTitle"/></declare-styleable>
     <declare-styleable name="SearchView"><attr format="reference" name="layout"/><attr format="boolean" name="iconifiedByDefault"/><attr name="android:maxWidth"/><attr format="string" name="queryHint"/><attr format="string" name="defaultQueryHint"/><attr name="android:imeOptions"/><attr name="android:inputType"/><attr format="reference" name="closeIcon"/><attr format="reference" name="goIcon"/><attr format="reference" name="searchIcon"/><attr format="reference" name="searchHintIcon"/><attr format="reference" name="voiceIcon"/><attr format="reference" name="commitIcon"/><attr format="reference" name="suggestionRowLayout"/><attr format="reference" name="queryBackground"/><attr format="reference" name="submitBackground"/><attr name="android:focusable"/></declare-styleable>
-    <declare-styleable name="Section"><attr format="string" name="sectionId"/><attr name="sectionFormat">
+    <declare-styleable name="Section">
+<attr format="string" name="sectionId"/>
+<attr name="sectionFormat">
 <enum name="plain" value="0"/>
 
 <enum name="html" value="1"/>
@@ -346,7 +407,18 @@
 
 <enum name="date" value="4"/>
 
-</attr><attr format="boolean" name="noIndex"/><attr format="integer" name="sectionWeight"/><attr format="boolean" name="indexPrefixes"/><attr format="string" name="subsectionSeparator"/><attr format="string" name="schemaOrgProperty"/></declare-styleable>
+</attr>
+
+<attr format="boolean" name="noIndex"/>
+
+<attr format="integer" name="sectionWeight"/>
+
+<attr format="boolean" name="indexPrefixes"/>
+
+<attr format="string" name="subsectionSeparator"/>
+
+<attr format="string" name="schemaOrgProperty"/>
+</declare-styleable>
     <declare-styleable name="SectionFeature"><attr name="featureType">
 <enum name="match_global_nicknames" value="1"/>
 
@@ -360,7 +432,8 @@
 
 <enum name="index_entity_types" value="6"/>
 
-</attr></declare-styleable>
+</attr>
+</declare-styleable>
     <declare-styleable name="SegmentedGroup"><attr format="dimension" name="sc_corner_radius"/><attr format="dimension" name="sc_border_width"/><attr format="color" name="sc_tint_color"/><attr format="color" name="sc_checked_text_color"/></declare-styleable>
     <declare-styleable name="SignInButton"><attr format="reference" name="buttonSize">
 <enum name="standard" value="0"/>
@@ -369,14 +442,18 @@
 
 <enum name="icon_only" value="2"/>
 
-</attr><attr format="reference" name="colorScheme">
+</attr>
+<attr format="reference" name="colorScheme">
 <enum name="dark" value="0"/>
 
 <enum name="light" value="1"/>
 
 <enum name="auto" value="2"/>
 
-</attr><attr format="reference|string" name="scopeUris"/></declare-styleable>
+</attr>
+
+<attr format="reference|string" name="scopeUris"/>
+</declare-styleable>
     <declare-styleable name="Spinner"><attr name="android:prompt"/><attr name="popupTheme"/><attr name="android:popupBackground"/><attr name="android:dropDownWidth"/><attr name="android:entries"/></declare-styleable>
     <declare-styleable name="SwitchCompat"><attr name="android:thumb"/><attr format="color" name="thumbTint"/><attr name="thumbTintMode">
             

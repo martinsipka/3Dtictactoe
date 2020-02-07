@@ -1,4 +1,4 @@
-#Mon Jul 30 20:14:29 ICT 2018
-base.0=/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/transforms/dexMerger/debug/1
+#Wed Dec 05 09:22:26 CET 2018
+base.0=/home/martin/AndroidStudioProjects/3dtictactoe/app/build/intermediates/transforms/dexMerger/debug/1
 path.0=classes.dex
 renamed.0=classes.dex

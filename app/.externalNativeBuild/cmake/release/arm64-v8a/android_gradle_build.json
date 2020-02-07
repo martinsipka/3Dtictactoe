@@ -1,9 +1,9 @@
 
 {
-	"buildFiles" : [ "/home/martin/AndroidProjects/3dtictactoe/CMakeLists.txt" ],
+	"buildFiles" : [ "/home/martin/AndroidStudioProjects/3dtictactoe/CMakeLists.txt" ],
 	"cleanCommands" : 
 	[
-		"/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a --target clean"
+		"/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidStudioProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a --target clean"
 	],
 	"cppFileExtensions" : [ "cpp" ],
 	"libraries" : 
@@ -12,18 +12,18 @@
 		{
 			"abi" : "arm64-v8a",
 			"artifactName" : "mcts",
-			"buildCommand" : "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a --target mcts",
+			"buildCommand" : "/home/martin/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/martin/AndroidStudioProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a --target mcts",
 			"buildType" : "release",
 			"files" : 
 			[
 				
 				{
-					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/martin/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/martin/Android/Sdk/ndk-bundle/sysroot  -Dmcts_EXPORTS -isystem /home/martin/Android/Sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include -isystem /home/martin/Android/Sdk/ndk-bundle/sources/android/support/include -isystem /home/martin/Android/Sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include  -isystem /home/martin/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=21 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security -std=c++11  -O2 -DNDEBUG  -fPIC    -c ",
-					"src" : "/home/martin/AndroidProjects/3dtictactoe/app/src/main/cpp/mcts.cpp",
-					"workingDirectory" : "/home/martin/AndroidProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a"
+					"flags" : "  --target=aarch64-none-linux-android21 --gcc-toolchain=/home/martin/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/martin/Android/Sdk/ndk-bundle/sysroot  -Dmcts_EXPORTS -isystem /home/martin/Android/Sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include -isystem /home/martin/Android/Sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include  -isystem /home/martin/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security -std=c++11  -O2 -DNDEBUG  -fPIC    -c ",
+					"src" : "/home/martin/AndroidStudioProjects/3dtictactoe/app/src/main/cpp/mcts.cpp",
+					"workingDirectory" : "/home/martin/AndroidStudioProjects/3dtictactoe/app/.externalNativeBuild/cmake/release/arm64-v8a"
 				}
 			],
-			"output" : "/home/martin/AndroidProjects/3dtictactoe/app/build/intermediates/cmake/release/obj/arm64-v8a/libmcts.so",
+			"output" : "/home/martin/AndroidStudioProjects/3dtictactoe/app/build/intermediates/cmake/release/obj/arm64-v8a/libmcts.so",
 			"toolchain" : "11558545980669601283"
 		}
 	},
