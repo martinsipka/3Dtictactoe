@@ -3,6 +3,8 @@
 #include <cmath>
 #include <jni.h>
 
+//Algorithm created by Odrej Skácel
+
 extern "C" {
 
 typedef uint64_t u64;
